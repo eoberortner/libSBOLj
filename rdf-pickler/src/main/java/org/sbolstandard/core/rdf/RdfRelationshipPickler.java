@@ -1,7 +1,10 @@
 package org.sbolstandard.core.rdf;
 
 /**
- * Created by nmrp3 on 16/12/13.
+ * API to take some of the pain out of transforming Java objectsRDF representations.
+ *
+ * @param  <T> the Java type to transform
+ * @author Matthew Pocock
  */
-public interface RdfRelationshipPickler {
+public interface RdfRelationshipPickler<T> {
 }

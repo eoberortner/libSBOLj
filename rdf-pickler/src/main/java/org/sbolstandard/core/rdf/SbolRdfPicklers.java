@@ -10,10 +10,10 @@ import java.util.Properties;
  * @author Matthew Pocock
  */
 public class SbolRdfPicklers {
-  private final CollectionRdfPickler collectionRdfPickler;
-  private final DnaComponentRdfPickler dnaComponentRdfPickler;
-  private final DnaSequenceRdfPickler dnaSequenceRdfPickler;
-  private final SequenceAnnotationRdfPickler sequenceAnnotationRdfPickler;
+  private final CollectionRdfEntityPickler collectionRdfPickler;
+  private final DnaComponentRdfEntityPickler dnaComponentRdfPickler;
+  private final DnaSequenceRdfEntityPickler dnaSequenceRdfPickler;
+  private final SequenceAnnotationRdfEntityPickler sequenceAnnotationRdfPickler;
 
   /**
    * Get an SbolRdfPicklers with the default configuration.
@@ -39,83 +39,83 @@ public class SbolRdfPicklers {
     sequenceAnnotationRdfPickler = configureSequenceAnnotationRdfPickler(props);
   }
 
-  public CollectionRdfPickler getCollectionRdfPickler() {
+  public CollectionRdfEntityPickler getCollectionRdfPickler() {
     return collectionRdfPickler;
   }
 
-  public DnaComponentRdfPickler getDnaComponentRdfPickler() {
+  public DnaComponentRdfEntityPickler getDnaComponentRdfPickler() {
     return dnaComponentRdfPickler;
   }
 
-  public DnaSequenceRdfPickler getDnaSequenceRdfPickler() {
+  public DnaSequenceRdfEntityPickler getDnaSequenceRdfPickler() {
     return dnaSequenceRdfPickler;
   }
 
-  public SequenceAnnotationRdfPickler getSequenceAnnotationRdfPickler() {
+  public SequenceAnnotationRdfEntityPickler getSequenceAnnotationRdfPickler() {
     return sequenceAnnotationRdfPickler;
   }
 
-  private CollectionRdfPickler configureCollectionRdfPickler(Properties props) {
+  private CollectionRdfEntityPickler configureCollectionRdfPickler(Properties props) {
     Properties cProps = propertiesFor(props, "Collection");
-    SBOLObjectRdfPickler sbolObjectRdfPickler = configureSBOLObjectRdfPickler(cProps);
-    SBOLNamedObjectRdfPickler namedObjectRdfPickler = configureSBOLNamedObjectRdfPickler(props, sbolObjectRdfPickler);
+    SBOLObjectRdfEntityPickler sbolObjectRdfPickler = configureSBOLObjectRdfPickler(cProps);
+    SBOLNamedObjectRdfEntityPickler namedObjectRdfPickler = configureSBOLNamedObjectRdfPickler(props, sbolObjectRdfPickler);
 
-    return new CollectionRdfPickler(namedObjectRdfPickler, getProperty(cProps, "component")) {
+    return new CollectionRdfEntityPickler(namedObjectRdfPickler, getProperty(cProps, "component")) {
       @Override
-      public DnaComponentRdfPickler getDnaComponentRdfPickler() {
+      public DnaComponentRdfEntityPickler getDnaComponentRdfPickler() {
         return dnaComponentRdfPickler;
       }
     };
   }
 
-  private DnaComponentRdfPickler configureDnaComponentRdfPickler(Properties props) {
+  private DnaComponentRdfEntityPickler configureDnaComponentRdfPickler(Properties props) {
     Properties dcProps = propertiesFor(props, "DnaComponent");
 
-    return new DnaComponentRdfPickler(configureSBOLNamedObjectRdfPickler(dcProps, configureSBOLObjectRdfPickler(dcProps)),
+    return new DnaComponentRdfEntityPickler(configureSBOLNamedObjectRdfPickler(dcProps, configureSBOLObjectRdfPickler(dcProps)),
             getProperty(dcProps, "annotation"),
             getProperty(dcProps, "dnaSequence")) {
       @Override
-      public DnaSequenceRdfPickler getDnaSequenceRdfPickler() {
+      public DnaSequenceRdfEntityPickler getDnaSequenceRdfPickler() {
         return dnaSequenceRdfPickler;
       }
 
       @Override
-      public SequenceAnnotationRdfPickler getSequenceAnnotationRdfPickler() {
+      public SequenceAnnotationRdfEntityPickler getSequenceAnnotationRdfPickler() {
         return sequenceAnnotationRdfPickler;
       }
     };
   }
 
-  private DnaSequenceRdfPickler configureDnaSequenceRdfPickler(Properties props) {
+  private DnaSequenceRdfEntityPickler configureDnaSequenceRdfPickler(Properties props) {
     Properties dsProps = propertiesFor(props, "DnaSequence");
 
-    return new DnaSequenceRdfPickler(
+    return new DnaSequenceRdfEntityPickler(
             configureSBOLObjectRdfPickler(dsProps),
             getProperty(dsProps, "nucleotides"));
   }
 
-  private SBOLNamedObjectRdfPickler configureSBOLNamedObjectRdfPickler(Properties props, SBOLObjectRdfPickler sbolObjectRdfPickler) {
-    return new SBOLNamedObjectRdfPickler(sbolObjectRdfPickler,
+  private SBOLNamedObjectRdfEntityPickler configureSBOLNamedObjectRdfPickler(Properties props, SBOLObjectRdfEntityPickler sbolObjectRdfPickler) {
+    return new SBOLNamedObjectRdfEntityPickler(sbolObjectRdfPickler,
             getProperty(props, "name"), getProperty(props, "description"), getProperty(props, "displayId"));
   }
 
-  private SBOLObjectRdfPickler configureSBOLObjectRdfPickler(Properties props) {
-    return new SBOLObjectRdfPickler(getProperty(props, "type"));
+  private SBOLObjectRdfEntityPickler configureSBOLObjectRdfPickler(Properties props) {
+    return new SBOLObjectRdfEntityPickler(getProperty(props, "type"));
   }
 
-  private SequenceAnnotationRdfPickler configureSequenceAnnotationRdfPickler(Properties props) {
+  private SequenceAnnotationRdfEntityPickler configureSequenceAnnotationRdfPickler(Properties props) {
     Properties saProps = propertiesFor(props, "SequenceAnnotation");
 
-    SBOLObjectRdfPickler sbolObjectRdfPickler = configureSBOLObjectRdfPickler(saProps);
+    SBOLObjectRdfEntityPickler sbolObjectRdfPickler = configureSBOLObjectRdfPickler(saProps);
 
-    return new SequenceAnnotationRdfPickler(sbolObjectRdfPickler,
+    return new SequenceAnnotationRdfEntityPickler(sbolObjectRdfPickler,
             getProperty(saProps, "bioStart"),
             getProperty(saProps, "bioEnd"),
             getProperty(saProps, "strand"),
             getProperty(saProps, "precedes"),
             getProperty(saProps, "subComponent")) {
       @Override
-      public DnaComponentRdfPickler getDnaComponentRdfPickler() {
+      public DnaComponentRdfEntityPickler getDnaComponentRdfPickler() {
         return dnaComponentRdfPickler;
       }
     };

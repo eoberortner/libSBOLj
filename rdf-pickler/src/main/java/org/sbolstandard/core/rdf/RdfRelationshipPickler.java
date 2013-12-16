@@ -1,7 +1,6 @@
 package org.sbolstandard.core.rdf;
 
 import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.Property;
 
 import java.util.Collection;
 

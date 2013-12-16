@@ -35,7 +35,7 @@ public class SbolRdfPicklers {
    * @return          a PropertyMaker that will use this name to make properties
    */
   public static PropertyMaker property(String propName) {
-    return new PropertyMaker.ByName(propName);
+    return new ByName(propName);
   }
 
   /**

@@ -28,16 +28,4 @@ public interface ResourceMaker<R> {
    */
   public Resource asResource(Model model, R r);
 
-  /**
-   * An implementation of {@link org.sbolstandard.core.rdf.ResourceMaker} that uses
-   * {@link org.sbolstandard.core.SBOLObject#getURI()}.
-   *
-   * @author Matthew Pocock
-   */
-  public static final class FromIdentity implements ResourceMaker<SBOLObject> {
-    @Override
-    public Resource asResource(Model model, SBOLObject r) {
-      return model.createResource(r.getURI().toString());
-    }
-  }
 }

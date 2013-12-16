@@ -26,7 +26,7 @@ public class SbolRdfPicklers {
   /**
    * A resource maker that uses {@link org.sbolstandard.core.SBOLObject#getURI()}.
    */
-  public static final ResourceMaker<SBOLObject> identity = new ResourceMaker.FromIdentity();
+  public static final ResourceMaker<SBOLObject> identity = new ResourceFromSBOLObjectUri();
 
   /**
    * Build a {@link org.sbolstandard.core.rdf.PropertyMaker} from the property name (URL).

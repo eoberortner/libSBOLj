@@ -47,7 +47,7 @@ public class SbolRdfPicklers {
    */
   @SafeVarargs
   public static <E> RdfEntityPickler<E> all(RdfEntityPickler<? super E> ... picklers) {
-    return new RdfEntityPickler.All<>(picklers);
+    return new AllEntityPicklers<>(picklers);
   }
 
   /**
@@ -59,7 +59,7 @@ public class SbolRdfPicklers {
    * @return              a pickler that emits this type assertion
    */
   public static <E> RdfEntityPickler<E> type(String type, ResourceMaker<? super E> fromResource) {
-    return new RdfEntityPickler.WithType<>(type, fromResource);
+    return new WithType<>(type, fromResource);
   }
 
   /**
@@ -82,7 +82,7 @@ public class SbolRdfPicklers {
 
       final Method readMethod = pd.getReadMethod();
       if(pd.getName().equals(propName) && readMethod != null) {
-        return new RdfEntityPickler.ByProperty<E, P>(relationshipPickler) {
+        return new ByProperty<E, P>(relationshipPickler) {
           @Override
           protected P target(E entity) {
             try {

@@ -11,7 +11,12 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 
 /**
- * Helpful utility for presenting a collection of configured picklers.
+ * Helpful utility for building picklers.
+ *
+ * <p>
+ *   This class is intended for static import. It contains factory methods to wrap building up complex picklers from
+ *   simple ones. By wrapping these in static factory methods, Java is able to do most of the type inference for you.
+ * </p>
  *
  * @author Matthew Pocock
  */

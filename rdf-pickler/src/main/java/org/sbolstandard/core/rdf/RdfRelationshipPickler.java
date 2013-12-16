@@ -7,8 +7,6 @@ import java.util.Collection;
 /**
  * Pickler for Java properties to RDF relationships.
  *
- * Part of the pickler API to take some of the pain out of transforming Java objects to RDF representations.
- *
  * @author Matthew Pocock
  */
 public interface RdfRelationshipPickler<E, P> {

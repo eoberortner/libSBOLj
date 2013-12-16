@@ -4,7 +4,9 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Property;
 
 /**
- * Created by nmrp3 on 16/12/13.
+ * Strategy for making a property from a property name.
+ *
+ * @author Matthew Pocock
  */
 public interface PropertyMaker {
   public Property propertyFor(Model model);

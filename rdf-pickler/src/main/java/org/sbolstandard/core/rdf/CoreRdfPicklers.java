@@ -9,15 +9,23 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
- * Created by nmrp3 on 16/12/13.
+ * RDF picklers for the core data model.
+ *
+ * <p>
+ *   This is intended to be used through the {@link #instance()} singleton. This will give you picklers configured
+ *   against the v1 SBOL terminology. If you want to use an alternative terminology, call
+ *   {@link #CoreRdfPicklers(java.util.Properties)} with your own properties containing bindings for that terminology.
+ * </p>
+ *
+ * @author Matthew Pocock
  */
 public class CoreRdfPicklers {
   private static CoreRdfPicklers instance = null;
 
   /**
-   * Get an SbolRdfPicklers with the default configuration.
+   * Get picklers with the default configuration.
    *
-   * @return  a default-valued SbolRdfPicklers instance
+   * @return  a default-valued CoreRdfPicklers instance
    * @throws java.io.IOException  if the resource used to configure this instance could not be loaded
    */
   public static CoreRdfPicklers instance() throws IOException, IntrospectionException {
@@ -83,11 +91,6 @@ public class CoreRdfPicklers {
   public RdfEntityPickler<DnaSequence> getDnaSequencePickler() {
     return dnaSequencePickler;
   }
-
-  public RdfEntityPickler<SequenceAnnotation> getSequenceAnnotationPickler() {
-    return sequenceAnnotationPickler;
-  }
-
 
   private RdfEntityPickler<SBOLNamedObject> mkSbolNamedObjectPickler(Properties props) throws IntrospectionException {
     Properties cProps = propertiesFor(props, "NamedObject");

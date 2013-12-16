@@ -6,8 +6,6 @@ import com.hp.hpl.jena.vocabulary.RDF;
 /**
  * Pickler for Java objects to RDF entities.
  *
- * Part of the pickler API to take some of the pain out of transforming Java objects to RDF representations.
- *
  * @param  <E> the Java type to transform
  * @author Matthew Pocock
  */

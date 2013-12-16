@@ -1,6 +1,7 @@
 package org.sbolstandard.core.rdf;
 
 import org.sbolstandard.core.*;
+
 import static org.sbolstandard.core.rdf.SbolRdfPicklers.*;
 
 import java.beans.IntrospectionException;

@@ -1,6 +1,7 @@
 package org.sbolstandard.core.rdf;
 
 import org.sbolstandard.core.SBOLObject;
+import org.sbolstandard.core.rdf.impl.*;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
@@ -98,7 +99,7 @@ public class SbolRdfPicklers {
   }
 
   /**
-   * Build a {@link org.sbolstandard.core.rdf.RdfPropertyPickler} that applies a series of picklers in turn.
+   * Build a {@link RdfPropertyPickler} that applies a series of picklers in turn.
    *
    * @param picklers  the picklers to apply
    * @param <E>       the entity type
@@ -107,11 +108,11 @@ public class SbolRdfPicklers {
    */
   @SafeVarargs
   public static <E, P> RdfPropertyPickler<E, P> all(RdfPropertyPickler<? super E, P>... picklers) {
-    return new RdfPropertyPickler.All<>(picklers);
+    return new AllPropertyPicklers<>(picklers);
   }
 
   /**
-   * Build a {@link org.sbolstandard.core.rdf.RdfPropertyPickler} that pickles each value in a collection.
+   * Build a {@link RdfPropertyPickler} that pickles each value in a collection.
    *
    * @param wrapped   a pickler for each individual value
    * @param <E>       the entity type
@@ -119,11 +120,11 @@ public class SbolRdfPicklers {
    * @return          a pickler that pickles each element of a collection
    */
   public static <E, P> RdfPropertyPickler<E, Collection<P>> collection(RdfPropertyPickler<E, P> wrapped) {
-    return new RdfPropertyPickler.ACollection<>(wrapped);
+    return new ACollection<>(wrapped);
   }
 
   /**
-   * Build a {@link org.sbolstandard.core.rdf.RdfPropertyPickler} that validates that the value is not null before
+   * Build a {@link RdfPropertyPickler} that validates that the value is not null before
    * delegating on to another pickler.
    *
    * @param wrapped   the pickler to delegate on to
@@ -132,11 +133,11 @@ public class SbolRdfPicklers {
    * @return          a pickler that checks for nulls and delegates on to {@code wrapped}
    */
   public static <E, P> RdfPropertyPickler<E, P> notNull(RdfPropertyPickler<? super E, P> wrapped) {
-    return new RdfPropertyPickler.IsNotNull<>(wrapped);
+    return new IsNotNull<>(wrapped);
   }
 
   /**
-   * Build a {@link org.sbolstandard.core.rdf.RdfPropertyPickler} that skips null values.
+   * Build a {@link RdfPropertyPickler} that skips null values.
    *
    * @param wrapped   the pickler to delegate on to for non-null values
    * @param <E>       the entity type
@@ -144,11 +145,11 @@ public class SbolRdfPicklers {
    * @return          a null-safe pickler that uses {@code wrapped} for non-null values
    */
   public static <E, P> RdfPropertyPickler<E, P> nullable(RdfPropertyPickler<E, P> wrapped) {
-    return new RdfPropertyPickler.IsNullable<>(wrapped);
+    return new IsNullable<>(wrapped);
   }
 
   /**
-   * Build a {@link org.sbolstandard.core.rdf.RdfPropertyPickler} that pickles an object property.
+   * Build a {@link RdfPropertyPickler} that pickles an object property.
    *
    * @param fromResource  the resource maker for the entity owning the property
    * @param property      the property maker for the property
@@ -158,11 +159,11 @@ public class SbolRdfPicklers {
    * @return              a pickler that emits a subject, predicate, object assertion
    */
   public static <E, P> RdfPropertyPickler<E, P> object(ResourceMaker<? super E> fromResource, PropertyMaker property, ResourceMaker<? super P> toResource) {
-    return new RdfPropertyPickler.AnObject<>(fromResource, property, toResource);
+    return new AnObject<>(fromResource, property, toResource);
   }
 
   /**
-   * Build a {@link org.sbolstandard.core.rdf.RdfPropertyPickler} that pickles a value property.
+   * Build a {@link RdfPropertyPickler} that pickles a value property.
    *
    * @param fromResource  the resource maker for the entity owning the property
    * @param property      the property maker for the property
@@ -171,7 +172,7 @@ public class SbolRdfPicklers {
    * @return              a pickler that emits a subject, predicate, value assertion
    */
   public static <E, P> RdfPropertyPickler<E, P> value(ResourceMaker<? super E> fromResource, PropertyMaker property) {
-    return new RdfPropertyPickler.AValue<E, P>(fromResource, property) {
+    return new AValue<E, P>(fromResource, property) {
       @Override
       public String toAsString(P to) {
         return to.toString();
@@ -180,7 +181,7 @@ public class SbolRdfPicklers {
   }
 
   /**
-   * Build a {@link org.sbolstandard.core.rdf.RdfPropertyPickler} that pickles the value of the property.
+   * Build a {@link RdfPropertyPickler} that pickles the value of the property.
    *
    * <p>
    *   This can be used to walk an object graph.
@@ -195,7 +196,7 @@ public class SbolRdfPicklers {
    * @return              a pickler that delegates to {@code entityPickler} to pickle the property value
    */
   public static <E, P> RdfPropertyPickler<E, P> walkTo(RdfEntityPickler<P> entityPickler) {
-    return new RdfPropertyPickler.WalkTo<>(entityPickler);
+    return new WalkTo<>(entityPickler);
   }
 
 }

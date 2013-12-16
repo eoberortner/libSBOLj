@@ -21,7 +21,7 @@ import java.util.Collection;
  *
  * @author Matthew Pocock
  */
-public class SbolRdfPicklers {
+public class RdfPicklers {
 
   /**
    * A resource maker that uses {@link org.sbolstandard.core.SBOLObject#getURI()}.

@@ -2,7 +2,7 @@ package org.sbolstandard.core.rdf;
 
 import org.sbolstandard.core.*;
 
-import static org.sbolstandard.core.rdf.SbolRdfPicklers.*;
+import static org.sbolstandard.core.rdf.RdfPicklers.*;
 
 import java.beans.IntrospectionException;
 import java.io.IOException;
@@ -32,7 +32,7 @@ public class CoreRdfPicklers {
   public static CoreRdfPicklers instance() throws IOException, IntrospectionException {
     if(instance == null) {
       Properties props = new Properties();
-      props.load(SbolRdfPicklers.class.getResourceAsStream("SbolRdfPicklers.properties"));
+      props.load(RdfPicklers.class.getResourceAsStream("SbolRdfPicklers.properties"));
       instance = new CoreRdfPicklers(props);
     }
 

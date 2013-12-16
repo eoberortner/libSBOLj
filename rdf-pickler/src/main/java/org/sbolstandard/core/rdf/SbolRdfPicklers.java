@@ -44,8 +44,9 @@ public class SbolRdfPicklers {
    * @param <E>       the entity type
    * @return          a pickler that applies each of {@code picklers}
    */
+  @SafeVarargs
   public static <E> RdfEntityPickler<E> all(RdfEntityPickler<? super E> ... picklers) {
-    return new RdfEntityPickler.All<E>(picklers);
+    return new RdfEntityPickler.All<>(picklers);
   }
 
   /**
@@ -72,6 +73,7 @@ public class SbolRdfPicklers {
    * @return                          a pickler that pickles the property
    * @throws IntrospectionException   if {@code propName} can't be successfully resolved to a getter
    */
+  @SuppressWarnings("unchecked")
   public static <E, P> RdfEntityPickler<E> byProperty(
           Class<E> cls, String propName, RdfPropertyPickler<? super E, P> relationshipPickler) throws IntrospectionException {
     BeanInfo bi = Introspector.getBeanInfo(cls);
@@ -83,7 +85,7 @@ public class SbolRdfPicklers {
           @Override
           protected P target(E entity) {
             try {
-              return (P) readMethod.invoke(entity);
+              return (P) readMethod.invoke(entity); // note: suppressed warnings for this unchecked cast
             } catch (IllegalAccessException | InvocationTargetException e) {
               throw new IllegalArgumentException(e);
             }
@@ -103,6 +105,7 @@ public class SbolRdfPicklers {
    * @param <P>       the property type
    * @return          a pickler that applies each of {@code picklers}
    */
+  @SafeVarargs
   public static <E, P> RdfPropertyPickler<E, P> all(RdfPropertyPickler<? super E, P>... picklers) {
     return new RdfPropertyPickler.All<>(picklers);
   }
@@ -113,7 +116,7 @@ public class SbolRdfPicklers {
    * @param wrapped   a pickler for each individual value
    * @param <E>       the entity type
    * @param <P>       the type of each element of the collection
-   * @return
+   * @return          a pickler that pickles each element of a collection
    */
   public static <E, P> RdfPropertyPickler<E, Collection<P>> collection(RdfPropertyPickler<E, P> wrapped) {
     return new RdfPropertyPickler.ACollection<>(wrapped);
@@ -183,7 +186,7 @@ public class SbolRdfPicklers {
    *   This can be used to walk an object graph.
    *   Typically, {@link #all(RdfPropertyPickler[])} will wrap a call to
    *   {@link #object(ResourceMaker, PropertyMaker, ResourceMaker)} to link the entity with the property value,
-   *   and {@linkplain #walkTo(RdfEntityPickler)} to emit the value.
+   *   and {@code walkTo(RdfEntityPickler)} to emit the value.
    * </p>
    *
    * @param entityPickler a pickler to use for the property value

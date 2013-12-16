@@ -49,9 +49,9 @@ public interface RdfEntityPickler<E> {
   }
 
   public static abstract class ByProperty<E, P> implements RdfEntityPickler<E> {
-    private final RdfRelationshipPickler<E, P> relationshipPickler;
+    private final RdfPropertyPickler<E, P> relationshipPickler;
 
-    protected ByProperty(RdfRelationshipPickler<E, P> relationshipPickler) {
+    protected ByProperty(RdfPropertyPickler<E, P> relationshipPickler) {
       this.relationshipPickler = relationshipPickler;
     }
 

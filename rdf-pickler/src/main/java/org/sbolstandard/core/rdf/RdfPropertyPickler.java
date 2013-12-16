@@ -9,7 +9,7 @@ import java.util.Collection;
  *
  * @author Matthew Pocock
  */
-public interface RdfRelationshipPickler<E, P> {
+public interface RdfPropertyPickler<E, P> {
   /**
    * Add RDF for a java relationship to a model.
    *
@@ -19,7 +19,7 @@ public interface RdfRelationshipPickler<E, P> {
    */
   public void pickle(Model model, E from, P to);
 
-  public static abstract class AValue<E, P> implements RdfRelationshipPickler<E, P> {
+  public static abstract class AValue<E, P> implements RdfPropertyPickler<E, P> {
     private final ResourceMaker<? super E> fromResource;
     private final PropertyMaker propertyMaker;
 
@@ -36,7 +36,7 @@ public interface RdfRelationshipPickler<E, P> {
     }
   }
 
-  public static final class AnObject<E, P> implements RdfRelationshipPickler<E, P> {
+  public static final class AnObject<E, P> implements RdfPropertyPickler<E, P> {
     private final ResourceMaker<? super E> fromResource;
     private final PropertyMaker property;
     private final ResourceMaker<? super P> toResource;
@@ -53,10 +53,10 @@ public interface RdfRelationshipPickler<E, P> {
     }
   }
 
-  public static final class IsNotNull<E, P> implements RdfRelationshipPickler<E, P> {
-    private final RdfRelationshipPickler<E, P> wrapped;
+  public static final class IsNotNull<E, P> implements RdfPropertyPickler<E, P> {
+    private final RdfPropertyPickler<E, P> wrapped;
 
-    public IsNotNull(RdfRelationshipPickler<E, P> wrapped) {
+    public IsNotNull(RdfPropertyPickler<E, P> wrapped) {
       this.wrapped = wrapped;
     }
 
@@ -68,10 +68,10 @@ public interface RdfRelationshipPickler<E, P> {
     }
   }
 
-  public static final class IsNullable<E, P> implements RdfRelationshipPickler<E, P> {
-    private final RdfRelationshipPickler<E, P> wrapped;
+  public static final class IsNullable<E, P> implements RdfPropertyPickler<E, P> {
+    private final RdfPropertyPickler<E, P> wrapped;
 
-    public IsNullable(RdfRelationshipPickler<E, P> wrapped) {
+    public IsNullable(RdfPropertyPickler<E, P> wrapped) {
       this.wrapped = wrapped;
     }
 
@@ -83,10 +83,10 @@ public interface RdfRelationshipPickler<E, P> {
     }
   }
 
-  public static final class ACollection<E, P> implements RdfRelationshipPickler<E, Collection<P>> {
-    private final RdfRelationshipPickler<E, P> wrapped;
+  public static final class ACollection<E, P> implements RdfPropertyPickler<E, Collection<P>> {
+    private final RdfPropertyPickler<E, P> wrapped;
 
-    public ACollection(RdfRelationshipPickler<E, P> wrapped) {
+    public ACollection(RdfPropertyPickler<E, P> wrapped) {
       this.wrapped = wrapped;
     }
 
@@ -98,22 +98,22 @@ public interface RdfRelationshipPickler<E, P> {
     }
   }
   
-  public static final class All<E, P> implements RdfRelationshipPickler<E, P> {
-    private final RdfRelationshipPickler<? super E, P>[] picklers;
+  public static final class All<E, P> implements RdfPropertyPickler<E, P> {
+    private final RdfPropertyPickler<? super E, P>[] picklers;
 
-    public All(RdfRelationshipPickler<? super E, P>[] picklers) {
+    public All(RdfPropertyPickler<? super E, P>[] picklers) {
       this.picklers = picklers;
     }
 
     @Override
     public void pickle(Model model, E from, P to) {
-      for(RdfRelationshipPickler<? super E, P> p : picklers) {
+      for(RdfPropertyPickler<? super E, P> p : picklers) {
         p.pickle(model, from, to);
       }
     }
   }
 
-  public static final class WalkTo<E, P> implements RdfRelationshipPickler<E, P> {
+  public static final class WalkTo<E, P> implements RdfPropertyPickler<E, P> {
     private final RdfEntityPickler<P> entityPickler;
 
     public WalkTo(RdfEntityPickler<P> entityPickler) {

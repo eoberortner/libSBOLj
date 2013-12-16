@@ -95,11 +95,11 @@ public class CoreRdfPicklers {
   private RdfEntityPickler<SBOLNamedObject> mkSbolNamedObjectPickler(Properties props) throws IntrospectionException {
     Properties cProps = propertiesFor(props, "NamedObject");
 
-    RdfRelationshipPickler<SBOLNamedObject, String> name =
+    RdfPropertyPickler<SBOLNamedObject, String> name =
             value(identity, property(getProperty(cProps, "name")));
-    RdfRelationshipPickler<SBOLNamedObject, String> displayId =
+    RdfPropertyPickler<SBOLNamedObject, String> displayId =
             value(identity, property(getProperty(cProps, "displayId")));
-    RdfRelationshipPickler<SBOLNamedObject, String> description =
+    RdfPropertyPickler<SBOLNamedObject, String> description =
             value(identity, property(getProperty(cProps, "description")));
 
     return all(
@@ -111,7 +111,7 @@ public class CoreRdfPicklers {
   private RdfEntityPickler<DnaSequence> mkDnaSequencePickler(Properties props) throws IntrospectionException {
     Properties cProps = propertiesFor(props, "DnaSequence");
 
-    RdfRelationshipPickler<DnaSequence, String> nucleotides =
+    RdfPropertyPickler<DnaSequence, String> nucleotides =
             value(identity, property(getProperty(cProps, "nucleotides")));
 
     return all(
@@ -122,15 +122,15 @@ public class CoreRdfPicklers {
   private RdfEntityPickler<SequenceAnnotation> mkSequenceAnnotationPickler(Properties props) throws IntrospectionException {
     Properties cProps = propertiesFor(props, "SequenceAnnotation");
 
-    RdfRelationshipPickler<SequenceAnnotation, Integer> bioStart =
+    RdfPropertyPickler<SequenceAnnotation, Integer> bioStart =
             value(identity, property(getProperty(cProps, "bioStart")));
-    RdfRelationshipPickler<SequenceAnnotation, Integer> bioEnd =
+    RdfPropertyPickler<SequenceAnnotation, Integer> bioEnd =
             value(identity, property(getProperty(cProps, "bioEnd")));
-    RdfRelationshipPickler<SequenceAnnotation, StrandType> strand =
+    RdfPropertyPickler<SequenceAnnotation, StrandType> strand =
             value(identity, property(getProperty(cProps, "strand")));
-    RdfRelationshipPickler<SequenceAnnotation, DnaComponent> subComponent =
+    RdfPropertyPickler<SequenceAnnotation, DnaComponent> subComponent =
             object(identity, property(getProperty(cProps, "subComponent")), identity);
-    RdfRelationshipPickler<SequenceAnnotation, DnaComponent> precedes =
+    RdfPropertyPickler<SequenceAnnotation, DnaComponent> precedes =
             object(identity, property(getProperty(cProps, "precedes")), identity);
 
     return all(
@@ -145,9 +145,9 @@ public class CoreRdfPicklers {
   private RdfEntityPickler<DnaComponent> mkDnaComponentPickler(Properties props) throws IntrospectionException {
     Properties cProps = propertiesFor(props, "DnaComponent");
 
-    RdfRelationshipPickler<DnaComponent, DnaSequence> sequence =
+    RdfPropertyPickler<DnaComponent, DnaSequence> sequence =
             object(identity, property(getProperty(cProps, "sequence")), identity);
-    RdfRelationshipPickler<DnaComponent, SequenceAnnotation> annotation =
+    RdfPropertyPickler<DnaComponent, SequenceAnnotation> annotation =
             object(identity, property(getProperty(cProps, "annotation")), identity);
 
     return all(
@@ -160,7 +160,7 @@ public class CoreRdfPicklers {
   private RdfEntityPickler<Collection> mkCollectionRdfPickler(Properties props) throws IntrospectionException {
     Properties cProps = propertiesFor(props, "Collection");
 
-    RdfRelationshipPickler<Collection, DnaComponent> component =
+    RdfPropertyPickler<Collection, DnaComponent> component =
             object(identity, property(getProperty(cProps, "component")), identity);
 
     return all(

@@ -66,7 +66,10 @@ public class CoreRdfPicklers {
   private final RdfEntityPickler<SequenceAnnotation> sequenceAnnotationPickler;
   private final RdfEntityPickler<Collection> collectionPickler;
 
-    /**
+  private final RdfEntityPickler<Collection> collectionComponentsPickler;
+  private final RdfEntityPickler<DnaComponent> nestedDnaComponentsPickler;
+
+  /**
    * Create a new SbolRdfPicklers instance using the supplied properties
    *
    * @param props   the Properties describing URIs associated with types and relations
@@ -78,19 +81,71 @@ public class CoreRdfPicklers {
     sequenceAnnotationPickler = mkSequenceAnnotationPickler(props);
     dnaComponentPickler = mkDnaComponentPickler(props);
     collectionPickler = mkCollectionRdfPickler(props);
+
+    collectionComponentsPickler = mkCollectionComponentsPickler();
+    nestedDnaComponentsPickler = mkNestedDnaComponentsPickler();
   }
 
+  /**
+   * Get the pickler for collections.
+   *
+   * <p>
+   *   This is configured to pickle the collection but not the collection members.
+   * </p>
+   *
+   * @return  the pickler for {@link Collection}
+   */
   public RdfEntityPickler<Collection> getCollectionPickler() {
     return collectionPickler;
   }
 
+  /**
+   * Get the pickler for DNA sequences.
+   *
+   * @return  the pickler for {@link org.sbolstandard.core.DnaSequence}
+   */
+  public RdfEntityPickler<DnaSequence> getDnaSequencePickler() {
+    return dnaSequencePickler;
+  }
+
+  /**
+   * Get the pickler for DNA components.
+   *
+   * <p>
+   *   This is configured to pickle the DNA component and all nested {@link org.sbolstandard.core.SequenceAnnotation}s
+   *   but doesn't recursively pickle nested DNA components.
+   * </p>
+   *
+   * @return  the pickler for {@link org.sbolstandard.core.DnaComponent} and nested
+   *          {@link org.sbolstandard.core.SequenceAnnotation}s
+   */
   public RdfEntityPickler<DnaComponent> getDnaComponentPickler() {
     return dnaComponentPickler;
   }
 
-  public RdfEntityPickler<DnaSequence> getDnaSequencePickler() {
-    return dnaSequencePickler;
+  /**
+   * Get the pickler for DNA components nested within other DNA components (one level deep).
+   *
+   * @return the pickler for {@link org.sbolstandard.core.DnaComponent} that drills down one level into nested
+   *          annotations and their components
+   */
+  public RdfEntityPickler<DnaComponent> getNestedDnaComponentsPickler() {
+    return nestedDnaComponentsPickler;
   }
+
+  /**
+   * Get the pickler for collection components.
+   *
+   * <p>
+   *   This is configured to pickle the components contained within a collection without pickling the collection.
+   * </p>
+   *
+   * @return the pickler for {@link org.sbolstandard.core.Collection#getComponents()}
+   */
+  public RdfEntityPickler<Collection> getCollectionComponentsPickler() {
+    return collectionComponentsPickler;
+  }
+
 
   private RdfEntityPickler<SBOLNamedObject> mkSbolNamedObjectPickler(Properties props) throws IntrospectionException {
     Properties cProps = propertiesFor(props, "NamedObject");
@@ -138,7 +193,7 @@ public class CoreRdfPicklers {
             byProperty(SequenceAnnotation.class, "bioStart", nullable(bioStart)),
             byProperty(SequenceAnnotation.class, "bioEnd", nullable(bioEnd)),
             byProperty(SequenceAnnotation.class, "strand", nullable(strand)),
-            byProperty(SequenceAnnotation.class, "subComponent", notNull(collection(subComponent))),
+            byProperty(SequenceAnnotation.class, "subComponent", notNull(subComponent)),
             byProperty(SequenceAnnotation.class, "precedes", notNull(collection(precedes))));
   }
 
@@ -153,7 +208,7 @@ public class CoreRdfPicklers {
     return all(
             type(getProperty(props, "DnaComponent"), identity),
             byProperty(DnaComponent.class, "sequence", nullable(sequence)),
-            byProperty(DnaComponent.class, "annotation", notNull(collection(all(annotation, walkTo(sequenceAnnotationPickler))))),
+            byProperty(DnaComponent.class, "annotations", notNull(collection(all(annotation, walkTo(sequenceAnnotationPickler))))),
             sbolNamedObjectPickler);
   }
 
@@ -167,5 +222,18 @@ public class CoreRdfPicklers {
             type(getProperty(props, "Collection"), identity),
             byProperty(Collection.class, "component", collection(notNull(component))),
             sbolNamedObjectPickler);
+  }
+
+  private RdfEntityPickler<Collection> mkCollectionComponentsPickler() throws IntrospectionException {
+    RdfPropertyPickler<Collection, DnaComponent> component =
+            walkTo(dnaComponentPickler);
+
+    return byProperty(Collection.class, "component", collection(notNull(component)));
+  }
+
+  private RdfEntityPickler<DnaComponent> mkNestedDnaComponentsPickler() throws IntrospectionException {
+    return byProperty(DnaComponent.class, "annotations",
+            collection(notNull(walkTo(byProperty(SequenceAnnotation.class, "subComponent",
+                    notNull(walkTo(dnaComponentPickler)))))));
   }
 }

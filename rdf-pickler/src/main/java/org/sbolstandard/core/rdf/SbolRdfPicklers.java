@@ -73,7 +73,7 @@ public class SbolRdfPicklers {
    * @throws IntrospectionException   if {@code propName} can't be successfully resolved to a getter
    */
   public static <E, P> RdfEntityPickler<E> byProperty(
-          Class<E> cls, String propName, RdfPropertyPickler<E, P> relationshipPickler) throws IntrospectionException {
+          Class<E> cls, String propName, RdfPropertyPickler<? super E, P> relationshipPickler) throws IntrospectionException {
     BeanInfo bi = Introspector.getBeanInfo(cls);
     for(PropertyDescriptor pd : bi.getPropertyDescriptors()) {
 
@@ -128,7 +128,7 @@ public class SbolRdfPicklers {
    * @param <P>       the property value type
    * @return          a pickler that checks for nulls and delegates on to {@code wrapped}
    */
-  public static <E, P> RdfPropertyPickler<E, P> notNull(RdfPropertyPickler<E, P> wrapped) {
+  public static <E, P> RdfPropertyPickler<E, P> notNull(RdfPropertyPickler<? super E, P> wrapped) {
     return new RdfPropertyPickler.IsNotNull<>(wrapped);
   }
 

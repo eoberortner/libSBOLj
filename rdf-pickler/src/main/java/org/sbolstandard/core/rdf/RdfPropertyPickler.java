@@ -54,9 +54,9 @@ public interface RdfPropertyPickler<E, P> {
   }
 
   public static final class IsNotNull<E, P> implements RdfPropertyPickler<E, P> {
-    private final RdfPropertyPickler<E, P> wrapped;
+    private final RdfPropertyPickler<? super E, P> wrapped;
 
-    public IsNotNull(RdfPropertyPickler<E, P> wrapped) {
+    public IsNotNull(RdfPropertyPickler<? super E, P> wrapped) {
       this.wrapped = wrapped;
     }
 

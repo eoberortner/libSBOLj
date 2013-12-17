@@ -1,12 +1,16 @@
 package org.sbolstandard.core.rdf;
 
 import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.RDFWriter;
+import com.hp.hpl.jena.rdf.model.Resource;
 import org.sbolstandard.core.*;
 
 import static org.sbolstandard.core.rdf.RdfPicklers.*;
 
 import java.beans.IntrospectionException;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.Map;
 import java.util.Properties;
 
@@ -61,13 +65,22 @@ public class CoreRdfPicklers {
     return result;
   }
 
+  private final String baseURI;
 
+  // URIs for resources
+  private final String dnaSequence;
+  private final String sequenceAnnotation;
+  private final String dnaComponent;
+  private final String collection;
+
+  // picklers
   private final RdfEntityPickler<SBOLNamedObject> sbolNamedObjectPickler;
   private final RdfEntityPickler<DnaSequence> dnaSequencePickler;
   private final RdfEntityPickler<DnaComponent> dnaComponentPickler;
   private final RdfEntityPickler<SequenceAnnotation> sequenceAnnotationPickler;
   private final RdfEntityPickler<Collection> collectionPickler;
 
+  // exotic picklers
   private final RdfEntityPickler<Collection> collectionComponentsPickler;
   private final RdfEntityPickler<DnaComponent> nestedDnaComponentsPickler;
 
@@ -78,6 +91,12 @@ public class CoreRdfPicklers {
    */
   public CoreRdfPicklers(Properties props) throws IntrospectionException {
     // initialization order is important here
+    baseURI = getProperty(props, "baseURI");
+    dnaSequence = getProperty(props, "DnaSequence");
+    sequenceAnnotation = getProperty(props, "SequenceAnnotation");
+    dnaComponent = getProperty(props, "DnaComponent");
+    collection = getProperty(props, "Collection");
+
     sbolNamedObjectPickler = mkSbolNamedObjectPickler(props);
     dnaSequencePickler = mkDnaSequencePickler(props);
     sequenceAnnotationPickler = mkSequenceAnnotationPickler(props);
@@ -117,6 +136,51 @@ public class CoreRdfPicklers {
         }
       });
     }
+  }
+
+  /**
+   * Get the base URI for the terminology used by these picklers.
+   *
+   * @return  the base URI
+   */
+  public String getBaseUri() {
+    return baseURI;
+  }
+
+  /**
+   * Resource name for the DnaSequence type.
+   *
+   * @return  the DnaSequence resource name
+   */
+  public String getDnaSequence() {
+    return dnaSequence;
+  }
+
+  /**
+   * Resoure name for the SequenceAnnotation type.
+   *
+   * @return  the SequenceAnnotation resource name
+   */
+  public String getSequenceAnnotation() {
+    return sequenceAnnotation;
+  }
+
+  /**
+   * Resource name for the DnaComponent type.
+   *
+   * @return  the DnaComponent resource name
+   */
+  public String getDnaComponent() {
+    return dnaComponent;
+  }
+
+  /**
+   * Resource name for the Collection type.
+   *
+   * @return  the Collection resource name
+   */
+  public String getCollection() {
+    return collection;
   }
 
   /**
@@ -179,7 +243,6 @@ public class CoreRdfPicklers {
     return collectionComponentsPickler;
   }
 
-
   private RdfEntityPickler<SBOLNamedObject> mkSbolNamedObjectPickler(Properties props) throws IntrospectionException {
     Properties cProps = propertiesFor(props, "NamedObject");
 
@@ -203,7 +266,7 @@ public class CoreRdfPicklers {
             value(identity, property(getProperty(cProps, "nucleotides")));
 
     return all(
-            type(getProperty(props, "DnaSequence"), identity),
+            type(dnaSequence, identity),
             byProperty(DnaSequence.class, "nucleotides", notNull(nucleotides)));
   }
 
@@ -222,7 +285,7 @@ public class CoreRdfPicklers {
             object(identity, property(getProperty(cProps, "precedes")), identity);
 
     return all(
-            type(getProperty(props, "SequenceAnnotation"), identity),
+            type(sequenceAnnotation, identity),
             byProperty(SequenceAnnotation.class, "bioStart", nullable(bioStart)),
             byProperty(SequenceAnnotation.class, "bioEnd", nullable(bioEnd)),
             byProperty(SequenceAnnotation.class, "strand", nullable(strand)),
@@ -239,7 +302,7 @@ public class CoreRdfPicklers {
             object(identity, property(getProperty(cProps, "annotation")), identity);
 
     return all(
-            type(getProperty(props, "DnaComponent"), identity),
+            type(dnaComponent, identity),
             byProperty(DnaComponent.class, "sequence", nullable(sequence)),
             byProperty(DnaComponent.class, "annotations", notNull(collection(all(annotation, walkTo(sequenceAnnotationPickler))))),
             sbolNamedObjectPickler);
@@ -252,7 +315,7 @@ public class CoreRdfPicklers {
             object(identity, property(getProperty(cProps, "component")), identity);
 
     return all(
-            type(getProperty(props, "Collection"), identity),
+            type(collection, identity),
             byProperty(Collection.class, "component", collection(notNull(component))),
             sbolNamedObjectPickler);
   }
@@ -268,5 +331,41 @@ public class CoreRdfPicklers {
     return byProperty(DnaComponent.class, "annotations",
             collection(notNull(walkTo(byProperty(SequenceAnnotation.class, "subComponent",
                     notNull(walkTo(dnaComponentPickler)))))));
+  }
+
+  public static interface IO {
+    public void write(SBOLDocument document, Writer rdfOut) throws IOException;
+    public void write(Model model, Writer rdfOut) throws IOException;
+  }
+
+  public IO getIO() {
+    String format = "RDF/XML-ABBREV";
+    return getIO(format, getDnaComponent(), getDnaSequence(), getCollection());
+  }
+
+  public IO getIO(final String format, final String ... topLevel) {
+    return new IO() {
+      public void write(Model model, Writer rdfOut) throws IOException
+      {
+        RDFWriter writer = model.getWriter(format);
+        writer.setProperty("tab","3");
+
+        Resource[] topLevelResources = new Resource[topLevel.length];
+        for(int i = 0; i < topLevel.length; i++) {
+          topLevelResources[i] = model.createResource(topLevel[i]);
+        }
+
+        writer.setProperty("prettyTypes", topLevelResources);
+        writer.write(model, rdfOut, getBaseUri());
+      }
+
+      @Override
+      public void write(SBOLDocument document, Writer rdfOut) throws IOException {
+        Model model = ModelFactory.createDefaultModel();
+        model.setNsPrefix("sbol", getBaseUri());
+        pickle(model, document);
+        write(model, rdfOut);
+      }
+    };
   }
 }

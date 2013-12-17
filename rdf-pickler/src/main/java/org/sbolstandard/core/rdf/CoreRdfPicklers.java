@@ -1,5 +1,6 @@
 package org.sbolstandard.core.rdf;
 
+import com.hp.hpl.jena.rdf.model.Model;
 import org.sbolstandard.core.*;
 
 import static org.sbolstandard.core.rdf.RdfPicklers.*;
@@ -85,6 +86,37 @@ public class CoreRdfPicklers {
 
     collectionComponentsPickler = mkCollectionComponentsPickler();
     nestedDnaComponentsPickler = mkNestedDnaComponentsPickler();
+  }
+
+  public void pickle(final Model model, SBOLDocument document) {
+    for(SBOLObject o : document.getContents()) {
+      o.accept(new SBOLVisitor<RuntimeException>() {
+        @Override
+        public void visit(SBOLDocument doc) throws RuntimeException {
+          // skip
+        }
+
+        @Override
+        public void visit(Collection coll) throws RuntimeException {
+          getCollectionPickler().pickle(model, coll);
+        }
+
+        @Override
+        public void visit(DnaComponent component) throws RuntimeException {
+          getDnaComponentPickler().pickle(model, component);
+        }
+
+        @Override
+        public void visit(DnaSequence sequence) throws RuntimeException {
+          getDnaSequencePickler().pickle(model, sequence);
+        }
+
+        @Override
+        public void visit(SequenceAnnotation annotation) throws RuntimeException {
+          // skip - there should be none of these at top-level
+        }
+      });
+    }
   }
 
   /**

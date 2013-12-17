@@ -4,19 +4,26 @@ import com.hp.hpl.jena.rdf.model.Model;
 import org.sbolstandard.core.rdf.RdfEntityPickler;
 
 /**
-* Created by nmrp3 on 16/12/13.
-*/
-public final class AllEntityPicklers<T> implements RdfEntityPickler<T> {
-  private final RdfEntityPickler<? super T>[] picklers;
+ * Apply an array of picklers.
+ *
+ * @param <E> the entity type
+ * @author Matthew Pocock
+ */
+public final class AllEntityPicklers<E> implements RdfEntityPickler<E> {
+  private final RdfEntityPickler<? super E>[] picklers;
 
-  public AllEntityPicklers(RdfEntityPickler<? super T>[] picklers) {
+  /**
+   *
+   * @param picklers  the array of picklers to apply
+   */
+  public AllEntityPicklers(RdfEntityPickler<? super E>[] picklers) {
     this.picklers = picklers;
   }
 
   @Override
-  public void pickle(Model model, T t) {
-    for(RdfEntityPickler<? super T> p : picklers) {
-      p.pickle(model, t);
+  public void pickle(Model model, E e) {
+    for(RdfEntityPickler<? super E> p : picklers) {
+      p.pickle(model, e);
     }
   }
 }

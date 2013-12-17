@@ -6,12 +6,21 @@ import org.sbolstandard.core.rdf.RdfPropertyPickler;
 import org.sbolstandard.core.rdf.ResourceMaker;
 
 /**
-* Created by nmrp3 on 16/12/13.
-*/
+ * Pickle as an RDF triple where the property value is represented as a literal using a String.
+ *
+ * @param <E> the entity type
+ * @param <P> the property value type
+ * @author Matthew Pocock
+ */
 public abstract class AValue<E, P> implements RdfPropertyPickler<E, P> {
   private final ResourceMaker<? super E> fromResource;
   private final PropertyMaker propertyMaker;
 
+  /**
+   *
+   * @param fromResource    resource maker for the entity
+   * @param propertyMaker   property maker
+   */
   public AValue(ResourceMaker<? super E> fromResource, PropertyMaker propertyMaker) {
     this.fromResource = fromResource;
     this.propertyMaker = propertyMaker;

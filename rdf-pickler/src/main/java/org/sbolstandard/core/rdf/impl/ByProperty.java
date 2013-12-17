@@ -5,13 +5,25 @@ import org.sbolstandard.core.rdf.RdfEntityPickler;
 import org.sbolstandard.core.rdf.RdfPropertyPickler;
 
 /**
-* Created by nmrp3 on 16/12/13.
-*/
+ * Pickle an entity by pickling a property.
+ *
+ * <p>
+ *   To bind this to specific properties, subclass and implement {@link #target(Object)}.
+ * </p>
+ *
+ * @param <E> the entity type
+ * @param <P> the propertyMaker value type
+ * @author Matthew Pocock
+ */
 public abstract class ByProperty<E, P> implements RdfEntityPickler<E> {
   private final RdfPropertyPickler<? super E, P> relationshipPickler;
 
-  public ByProperty(RdfPropertyPickler<? super E, P> relationshipPickler) {
-    this.relationshipPickler = relationshipPickler;
+  /**
+   *
+   * @param propertyPickler   the pickler used to pickle the property
+   */
+  public ByProperty(RdfPropertyPickler<? super E, P> propertyPickler) {
+    this.relationshipPickler = propertyPickler;
   }
 
   protected abstract P target(E entity);

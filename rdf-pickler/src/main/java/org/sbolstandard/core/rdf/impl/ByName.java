@@ -5,11 +5,17 @@ import com.hp.hpl.jena.rdf.model.Property;
 import org.sbolstandard.core.rdf.PropertyMaker;
 
 /**
-* Created by nmrp3 on 16/12/13.
-*/
+ * A property maker that uses the same name string over and over.
+ *
+ * @author Matthew Pocock
+ */
 public final class ByName implements PropertyMaker {
   private final String name;
 
+  /**
+   *
+   * @param name  the name (uri) of the property that will be made
+   */
   public ByName(String name) {
     this.name = name;
   }

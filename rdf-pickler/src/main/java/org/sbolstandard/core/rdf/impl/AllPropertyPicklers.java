@@ -4,11 +4,19 @@ import com.hp.hpl.jena.rdf.model.Model;
 import org.sbolstandard.core.rdf.RdfPropertyPickler;
 
 /**
-* Created by nmrp3 on 16/12/13.
-*/
+ * Apply an array of picklers.
+ *
+ * @param <E> the entity type
+ * @param <P> the property value type
+ * @author Matthew Pocock
+ */
 public final class AllPropertyPicklers<E, P> implements RdfPropertyPickler<E, P> {
   private final RdfPropertyPickler<? super E, P>[] picklers;
 
+  /**
+   *
+   * @param picklers  the array of picklers to apply
+   */
   public AllPropertyPicklers(RdfPropertyPickler<? super E, P>[] picklers) {
     this.picklers = picklers;
   }

@@ -4,11 +4,19 @@ import com.hp.hpl.jena.rdf.model.Model;
 import org.sbolstandard.core.rdf.RdfPropertyPickler;
 
 /**
-* Created by nmrp3 on 16/12/13.
-*/
+ * Pickle entities using a wrapped pickler, doing nothing for nulls.
+ *
+ * @param <E> the entity type
+ * @param <P> the propertyMaker value type
+ * @author Matthew Pocock
+ */
 public final class IsNullable<E, P> implements RdfPropertyPickler<E, P> {
   private final RdfPropertyPickler<E, P> wrapped;
 
+  /**
+   *
+   * @param wrapped   the pickler to use after null checks
+   */
   public IsNullable(RdfPropertyPickler<E, P> wrapped) {
     this.wrapped = wrapped;
   }

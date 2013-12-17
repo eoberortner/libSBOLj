@@ -59,7 +59,7 @@ public class RdfPicklers {
    * @return              a pickler that emits this type assertion
    */
   public static <E> RdfEntityPickler<E> type(String type, ResourceMaker<? super E> fromResource) {
-    return new WithType<>(type, fromResource);
+    return new WithType<>(fromResource, type);
   }
 
   /**

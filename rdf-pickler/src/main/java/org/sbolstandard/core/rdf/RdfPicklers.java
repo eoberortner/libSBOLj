@@ -9,6 +9,7 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URI;
 import java.util.Collection;
 
 /**
@@ -27,6 +28,8 @@ public class RdfPicklers {
    * A resource maker that uses {@link org.sbolstandard.core.SBOLObject#getURI()}.
    */
   public static final ResourceMaker<SBOLObject> identity = new ResourceFromSBOLObjectUri();
+
+  public static final ResourceMaker<URI> uri = new ResourceFromUri();
 
   /**
    * Build a {@link org.sbolstandard.core.rdf.PropertyMaker} from the property name (URL).

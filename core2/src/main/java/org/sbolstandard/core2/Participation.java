@@ -18,8 +18,13 @@ public class Participation extends Identified {
 	private final Set<URI> roles = new HashSet<>();
 	private URI participant;
 	private ModuleDefinition moduleDefinition = null;
+
+	public Participation(URI identity, URI participant) {
+		this(identity);
+		setParticipant(participant);
+	}
 	
-	public Participation(URI identity) {
+	Participation(URI identity) {
 		super(identity);
 	}
 	

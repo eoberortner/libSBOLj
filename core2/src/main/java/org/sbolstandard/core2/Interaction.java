@@ -25,8 +25,13 @@ public class Interaction extends Documented {
 	 * 
 	 * @param identity an identity for the interaction	 
 	 */
-	public Interaction(URI identity) {
+	Interaction(URI identity) {
 		super(identity);
+	}
+
+	public Interaction(URI identity, Set<URI> types) {
+		this(identity);
+		setTypes(types);
 	}
 	
 	public Interaction(Interaction interaction) {

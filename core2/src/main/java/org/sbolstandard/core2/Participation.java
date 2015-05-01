@@ -15,14 +15,12 @@ import java.util.Set;
  */
 public class Participation extends Identified {
 	
-	private Set<URI> roles;
+	private final Set<URI> roles = new HashSet<>();
 	private URI participant;
 	private ModuleDefinition moduleDefinition = null;
 	
-	public Participation(URI identity, URI participant) {
+	public Participation(URI identity) {
 		super(identity);
-		roles = new HashSet<>();
-		setParticipant(participant);
 	}
 	
 	private Participation(Participation participation) {

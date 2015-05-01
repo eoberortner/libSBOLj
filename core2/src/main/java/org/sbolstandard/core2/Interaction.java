@@ -17,20 +17,16 @@ import static org.sbolstandard.core2.URIcompliance.*;
  */
 public class Interaction extends Documented {
 
-	private Set<URI> types;
-	private HashMap<URI, Participation> participations;
+	private final Set<URI> types = new HashSet<>();
+	private final HashMap<URI, Participation> participations = new HashMap<>();
 	private ModuleDefinition moduleDefinition = null;
 	
 	/**
 	 * 
 	 * @param identity an identity for the interaction	 
-	 * @param type a type for the interaction
 	 */
-	public Interaction(URI identity, Set<URI> type) {
+	public Interaction(URI identity) {
 		super(identity);
-		this.types = new HashSet<>();
-		setTypes(type);
-		this.participations = new HashMap<>();
 	}
 	
 	public Interaction(Interaction interaction) {

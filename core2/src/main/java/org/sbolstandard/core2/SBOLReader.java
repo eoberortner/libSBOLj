@@ -1835,107 +1835,121 @@ public class SBOLReader
 		return map;
 	}
 
+	private static final <E> Set<E> setFrom(E ... es) {
+		final Set<E> set = new HashSet<>(es.length);
+		for(E e: es) {
+			set.add(e);
+		}
+		return set;
+	}
+
+	@SafeVarargs
+	private static final <E> Set<E> setUnion(Set<E> ... ss) {
+		final Set<E> set = new HashSet<>();
+		for(Set<E> s : ss) {
+			set.addAll(s);
+		}
+		return set;
+	}
+
+	private static final Set<QName> identifiedTerms = setFrom(
+			Sbol2Terms.Identified.persistentIdentity,
+			Sbol2Terms.Identified.version,
+			Sbol2Terms.Identified.wasDerivedFrom);
+
+	private static void populateIdentified(IdentifiableDocument.Properties<QName> props, Identified toMake) {
+		toMake.setIdentity(props.uri().getOptionalValue(
+				Sbol2Terms.Identified.persistentIdentity));
+		toMake.setVersion(props.string().getOptionalValue(
+				Sbol2Terms.Identified.version));
+		toMake.setWasDerivedFrom(props.uri().getOptionalValue(
+				Sbol2Terms.Identified.wasDerivedFrom));
+	}
+
+	private static final Set<QName> documentedTerms = setFrom(
+			Sbol2Terms.Documented.displayId,
+			Sbol2Terms.Documented.title,
+			Sbol2Terms.Documented.description);
+
+	private static void populateDocumented(IdentifiableDocument.Properties<QName> props, Documented toMake) {
+		toMake.setDisplayId(props.string().getOptionalValue(Sbol2Terms.Documented.displayId));
+		toMake.setName(props.string().getOptionalValue(Sbol2Terms.Documented.title));
+		toMake.setDescription(props.string().getOptionalValue(Sbol2Terms.Documented.description));
+	}
+
+	private static final Set<QName> interactionTerms = setFrom(
+			Sbol2Terms.Interaction.hasParticipations,
+			Sbol2Terms.Interaction.type);
+
+	private static final Set<QName> allInteractionTerms = setUnion(
+			identifiedTerms,
+			documentedTerms,
+			interactionTerms);
+
+	private static void populateInteraction(IdentifiableDocument.Properties<QName> props, Interaction toMake) {
+		final Set<URI> type 		 = new HashSet<>();
+		for(URI t : props.uri().getValues(Sbol2Terms.Interaction.type)) {
+			type.add(t);
+		}
+		toMake.setTypes(type);
+
+
+		final List<Participation> participations = new ArrayList<>();
+		for(NestedDocument<QName> nd : props.nestedDocument().getValues(Sbol2Terms.Interaction.hasParticipations)) {
+			participations.add(parseParticipation(nd));
+		}
+		toMake.setParticipations(participations);
+	}
+
+	private static void populateAnnotations(IdentifiableDocument.Properties<QName> props, Identified toMake, Set<QName> toExclude) {
+		final List<Annotation> annotations = new ArrayList<>();
+		for (NamedProperty<QName> np : props.excluding(toExclude))
+		{
+			annotations.add(new Annotation(np));
+		}
+		toMake.setAnnotations(annotations);
+	}
+
 	private static Interaction parseInteraction(NestedDocument<QName> interaction)
 	{
 		final IdentifiableDocument.Properties<QName> properties = interaction.properties();
+		Interaction i = new Interaction(interaction.getIdentity());
 
-		final URI persistentIdentity = properties.uri().getOptionalValue(Sbol2Terms.Identified.persistentIdentity);
-		final String version 		 = properties.string().getOptionalValue(Sbol2Terms.Identified.version);
-		final String displayId 	     = properties.string().getOptionalValue(Sbol2Terms.Documented.displayId);
-		final String name 		     = properties.string().getOptionalValue(Sbol2Terms.Documented.title);
-		final String description 	 = properties.string().getOptionalValue(Sbol2Terms.Documented.description);
-		final URI wasDerivedFrom	 = properties.uri().getOptionalValue(Sbol2Terms.Identified.wasDerivedFrom);
+		populateIdentified(properties, i);
+		populateDocumented(properties, i);
+		populateInteraction(properties, i);
+		populateAnnotations(properties, i, allInteractionTerms);
 
-		final Set<URI> type 		 = new HashSet<>();
-		for(URI t : properties.uri().getValues(Sbol2Terms.Interaction.type)) {
-			type.add(t);
-		}
-
-		final List<Participation> participations = new ArrayList<>();
-		for(NestedDocument<QName> nd : properties.nestedDocument().getValues(Sbol2Terms.Interaction.hasParticipations)) {
-			participations.add(parseParticipation(nd));
-		}
-
-		final List<Annotation> annotations = new ArrayList<>();
-		for (NamedProperty<QName> i : properties.excluding(
-				Sbol2Terms.Identified.persistentIdentity,
-				Sbol2Terms.Identified.version,
-				Sbol2Terms.Documented.displayId,
-				Sbol2Terms.Documented.title,
-				Sbol2Terms.Documented.description,
-				Sbol2Terms.Identified.wasDerivedFrom))
-		{
-				annotations.add(new Annotation(i));
-		}
-
-		Interaction i = new Interaction(interaction.getIdentity(), type);
-		i.setParticipations(participations);
-		i.setPersistentIdentity(persistentIdentity);
-		i.setVersion(version);
-		i.setDisplayId(displayId);
-		i.setName(name);
-		i.setDescription(description);
-		i.setWasDerivedFrom(wasDerivedFrom);
-		i.setAnnotations(annotations);
 		return i;
+	}
+
+	private static final Set<QName> participationTerms = setFrom(
+			Sbol2Terms.Participation.role,
+			Sbol2Terms.Participation.hasParticipant);
+
+	private static final Set<QName> allParticipationTerms = setUnion(
+			identifiedTerms,
+			participationTerms);
+
+	private static final void populateParticipation(IdentifiableDocument.Properties<QName> props, Participation toMake) {
+		toMake.setParticipant(props.uri().getValue(Sbol2Terms.Participation.hasParticipant));
+
+		final Set<URI> roles = new HashSet<>();
+		for(URI role : props.uri().getValues(Sbol2Terms.Participation.role)) {
+			roles.add(role);
+		}
+		toMake.setRoles(roles);
 	}
 
 	private static Participation parseParticipation(NestedDocument<QName> participation)
 	{
-		URI persistentIdentity = null;
-		String displayId	   = null;
-		String version 		   = null;
-		Set<URI> role 		   = new HashSet<>();
-		URI participant        = null;
-		URI wasDerivedFrom 	   = null;
-		List<Annotation> annotations = new ArrayList<>();
+		final IdentifiableDocument.Properties<QName> properties = participation.properties();
+		Participation p = new Participation(participation.getIdentity());
+		
+		populateIdentified(properties, p);
+		populateParticipation(properties, p);
+		populateAnnotations(properties, p, allParticipationTerms);
 
-		for (NamedProperty<QName> p : participation.getProperties())
-		{
-			if (p.getName().equals(Sbol2Terms.Identified.persistentIdentity))
-			{
-				persistentIdentity = URI.create(((Literal<QName>) p.getValue()).getValue().toString());
-			}
-			else if (p.getName().equals(Sbol2Terms.Identified.version))
-			{
-				version  = ((Literal<QName>) p.getValue()).getValue().toString();
-			}
-			else if (p.getName().equals(Sbol2Terms.Documented.displayId))
-			{
-				displayId = ((Literal<QName>) p.getValue()).getValue().toString();
-			}
-			else if (p.getName().equals(Sbol2Terms.Participation.role))
-			{
-				role.add(URI.create(((Literal<QName>) p.getValue()).getValue()
-						.toString()));
-			}
-			else if (p.getName().equals(Sbol2Terms.Participation.hasParticipant))
-			{
-				participant = URI.create(((Literal<QName>) p.getValue()).getValue().toString());
-			}
-			else if (p.getName().equals(ProvTerms.Prov.wasDerivedFrom))
-			{
-				wasDerivedFrom = URI.create(((Literal<QName>) p.getValue()).getValue().toString());
-			}
-			else
-			{
-				annotations.add(new Annotation(p));
-			}
-		}
-
-		Participation p = new Participation(participation.getIdentity(), participant);
-		if (role != null) // codereview: is this ever not true?
-			p.setRoles(role);
-		if (displayId != null)
-			p.setDisplayId(displayId);
-		if (persistentIdentity != null)
-			p.setPersistentIdentity(persistentIdentity);
-		if (version != null)
-			p.setVersion(version);
-		if( wasDerivedFrom != null)
-			p.setWasDerivedFrom(wasDerivedFrom);
-		if(!annotations.isEmpty())
-			p.setAnnotations(annotations);
 		return p;
 	}
 

@@ -1837,75 +1837,46 @@ public class SBOLReader
 
 	private static Interaction parseInteraction(NestedDocument<QName> interaction)
 	{
-		URI persistentIdentity = null;
-		String version 		   = null;
-		String displayId 	   = null;
-		String name 		   = null;
-		String description 	   = null;
-		URI wasDerivedFrom	   = null;
+		final IdentifiableDocument.Properties<QName> properties = interaction.properties();
 
-		Set<URI> type 		   			   = new HashSet<>();
-		List<Participation> participations = new ArrayList<>();
-		List<Annotation> annotations 	   = new ArrayList<>();
+		final URI persistentIdentity = properties.uri().getOptionalValue(Sbol2Terms.Identified.persistentIdentity);
+		final String version 		 = properties.string().getOptionalValue(Sbol2Terms.Identified.version);
+		final String displayId 	     = properties.string().getOptionalValue(Sbol2Terms.Documented.displayId);
+		final String name 		     = properties.string().getOptionalValue(Sbol2Terms.Documented.title);
+		final String description 	 = properties.string().getOptionalValue(Sbol2Terms.Documented.description);
+		final URI wasDerivedFrom	 = properties.uri().getOptionalValue(Sbol2Terms.Identified.wasDerivedFrom);
 
-		for (NamedProperty<QName> i : interaction.getProperties())
+		final Set<URI> type 		 = new HashSet<>();
+		for(URI t : properties.uri().getValues(Sbol2Terms.Interaction.type)) {
+			type.add(t);
+		}
+
+		final List<Participation> participations = new ArrayList<>();
+		for(NestedDocument<QName> nd : properties.nestedDocument().getValues(Sbol2Terms.Interaction.hasParticipations)) {
+			participations.add(parseParticipation(nd));
+		}
+
+		final List<Annotation> annotations = new ArrayList<>();
+		for (NamedProperty<QName> i : properties.excluding(
+				Sbol2Terms.Identified.persistentIdentity,
+				Sbol2Terms.Identified.version,
+				Sbol2Terms.Documented.displayId,
+				Sbol2Terms.Documented.title,
+				Sbol2Terms.Documented.description,
+				Sbol2Terms.Identified.wasDerivedFrom))
 		{
-			if (i.getName().equals(Sbol2Terms.Identified.persistentIdentity))
-			{
-				persistentIdentity = URI.create(((Literal<QName>) i.getValue()).getValue().toString());
-			}
-			else if (i.getName().equals(Sbol2Terms.Identified.version))
-			{
-				version  = ((Literal<QName>) i.getValue()).getValue().toString();
-			}
-			else if (i.getName().equals(Sbol2Terms.Documented.displayId))
-			{
-				displayId = ((Literal<QName>) i.getValue()).getValue().toString();
-			}
-			else if (i.getName().equals(Sbol2Terms.Interaction.type))
-			{
-				type.add(URI.create(((Literal<QName>) i.getValue()).getValue().toString()));
-			}
-			else if (i.getName().equals(Sbol2Terms.Interaction.hasParticipations))
-			{
-				participations.add(parseParticipation((NestedDocument<QName>) i.getValue()));
-			}
-			else if (i.getName().equals(Sbol2Terms.Documented.title))
-			{
-				name = ((Literal<QName>) i.getValue()).getValue().toString();
-			}
-			else if (i.getName().equals(Sbol2Terms.Documented.description))
-			{
-				description = ((Literal<QName>) i.getValue()).getValue().toString();
-			}
-			else if (i.getName().equals(ProvTerms.Prov.wasDerivedFrom))
-			{
-				wasDerivedFrom = URI.create(((Literal<QName>) i.getValue()).getValue().toString());
-			}
-			else
-			{
 				annotations.add(new Annotation(i));
-			}
 		}
 
 		Interaction i = new Interaction(interaction.getIdentity(), type);
-		if (participations != null) { // codereview: is this ever not true?
-			i.setParticipations(participations);
-		}
-		if (persistentIdentity != null)
-			i.setPersistentIdentity(persistentIdentity);
-		if (version != null)
-			i.setVersion(version);
-		if (displayId != null)
-			i.setDisplayId(displayId);
-		if (name != null)
-			i.setName(name);
-		if (description != null)
-			i.setDescription(description);
-		if (wasDerivedFrom != null)
-			i.setWasDerivedFrom(wasDerivedFrom);
-		if (!annotations.isEmpty())
-			i.setAnnotations(annotations);
+		i.setParticipations(participations);
+		i.setPersistentIdentity(persistentIdentity);
+		i.setVersion(version);
+		i.setDisplayId(displayId);
+		i.setName(name);
+		i.setDescription(description);
+		i.setWasDerivedFrom(wasDerivedFrom);
+		i.setAnnotations(annotations);
 		return i;
 	}
 

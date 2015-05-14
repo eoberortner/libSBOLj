@@ -25,7 +25,6 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 
 import org.sbolstandard.core2.ComponentInstance.AccessType;
-import org.sbolstandard.core2.FunctionalComponent.DirectionType;
 import org.sbolstandard.core2.MapsTo.RefinementType;
 import org.sbolstandard.core2.SequenceConstraint.RestrictionType;
 
@@ -384,7 +383,7 @@ public class SBOLReader
 			else if (topLevel.getType().equals(Sbol2Terms.Sequence.Sequence))
 				parseSequences(SBOLDoc, topLevel);
 			else if (topLevel.getType().equals(Sbol2Terms.ComponentDefinition.ComponentDefinition))
-				parseComponentDefinitions(SBOLDoc, topLevel);
+				parseComponentDefinition(SBOLDoc, topLevel);
 			else
 				parseGenericTopLevel(SBOLDoc, topLevel);
 		}
@@ -626,9 +625,9 @@ public class SBOLReader
 				displayId = ((Literal<QName>) namedProperty.getValue()).getValue().toString();
 				if (setURIPrefix != null)
 				{
-					identity = URI.create(setURIPrefix + "/" + SBOLDocument.TopLevelTypes.collection + "/" + 
+					identity = URI.create(setURIPrefix + "/" + SBOLDocument.TopLevelTypes.collection + "/" +
 							displayId + "/1.0");
-					persistentIdentity = URI.create(setURIPrefix + "/" + SBOLDocument.TopLevelTypes.collection + "/" + 
+					persistentIdentity = URI.create(setURIPrefix + "/" + SBOLDocument.TopLevelTypes.collection + "/" +
 							displayId);
 				}
 			}
@@ -786,251 +785,137 @@ public class SBOLReader
 		return s;
 	}
 
-	private static ComponentDefinition parseComponentDefinitions(
-			SBOLDocument SBOLDoc, TopLevelDocument<QName> topLevel)
-	{
-		String displayId 	   = null;
-		String name 	 	   = null;
-		String description 	   = null;
-		URI persistentIdentity = null;
-		URI structure 		   = null;
-		String version 		   = null;
-		URI wasDerivedFrom     = null;
-		Set<URI> type 		   = new HashSet<>();
-		Set<URI> roles 	  	   = new HashSet<>();
 
-		List<Component> components 					 = new ArrayList<>();
-		List<Annotation> annotations 				 = new ArrayList<>();
+	private static void populateIdentified(
+			IdentifiableDocument.Properties<QName> props, Identified toMake)
+	{
+		toMake.setPersistentIdentity(props.uri().getOptionalValue(
+				Sbol2Terms.Identified.persistentIdentity));
+		toMake.setVersion(props.string().getOptionalValue(
+				Sbol2Terms.Identified.version));
+		toMake.setWasDerivedFrom(props.uri().getOptionalValue(
+				Sbol2Terms.Identified.wasDerivedFrom));
+	}
+
+
+	private static void populateDocumented(
+			IdentifiableDocument.Properties<QName> props, Documented toMake)
+	{
+		toMake.setDisplayId(props.string().getOptionalValue(
+				Sbol2Terms.Documented.displayId));
+		toMake.setName(props.string().getOptionalValue(
+				Sbol2Terms.Documented.title));
+		toMake.setDescription(props.string().getOptionalValue(
+				Sbol2Terms.Documented.description));
+	}
+
+
+	private static void populateTopLevel(
+			IdentifiableDocument.Properties<QName> props, TopLevel toMake)
+	{
+		// nothing to do
+	}
+
+
+	private static void populateComponentDefinition(
+			IdentifiableDocument.Properties<QName> props, ComponentDefinition toMake)
+	{
+		toMake.setSequence(props.uri().getOptionalValue(Sbol2Terms.ComponentDefinition.hasSequence));
+
+		Set<URI> types = new HashSet<>();
+		for(URI t : props.uri().getValues(Sbol2Terms.ComponentDefinition.type)) {
+			types.add(t);
+		}
+		toMake.setTypes(types);
+
+		Set<URI> roles = new HashSet<>();
+		for(URI r : props.uri().getValues(Sbol2Terms.ComponentDefinition.roles)) {
+			roles.add(r);
+		}
+		toMake.setRoles(roles);
+
+		List<Component> components = new ArrayList<>();
+		for(NestedDocument<QName> doc : props.nestedDocument().getValues(Sbol2Terms.ComponentDefinition.hasComponent)) {
+			components.add(parseSubComponent(doc));
+		}
+		toMake.setComponents(components);
+
 		List<SequenceAnnotation> sequenceAnnotations = new ArrayList<>();
+		for(NestedDocument<QName> doc : props.nestedDocument().getValues(Sbol2Terms.ComponentDefinition.hasSequenceAnnotations)) {
+			sequenceAnnotations.add(parseSequenceAnnotation(doc));
+		}
+		toMake.setSequenceAnnotations(sequenceAnnotations);
+
 		List<SequenceConstraint> sequenceConstraints = new ArrayList<>();
-
-		for (NamedProperty<QName> namedProperty : topLevel.getProperties())
-		{
-			if (namedProperty.getName().equals(Sbol2Terms.Identified.version))
-			{
-				version  = ((Literal<QName>) namedProperty.getValue()).getValue().toString();
-			}
-			else if (namedProperty.getName().equals(Sbol2Terms.Identified.persistentIdentity))
-			{
-				persistentIdentity  = URI.create(((Literal<QName>) namedProperty.getValue()).getValue().toString());
-			}
-			else if (namedProperty.getName().equals(Sbol2Terms.Documented.displayId))
-			{
-				displayId = ((Literal<QName>) namedProperty.getValue()).getValue().toString();
-			}
-			else if (namedProperty.getName().equals(Sbol2Terms.ComponentDefinition.type))
-			{
-				type.add(URI.create(((Literal<QName>) namedProperty.getValue()).getValue().toString()));
-			}
-			else if (namedProperty.getName().equals(Sbol2Terms.Model.roles))
-			{
-				roles.add(URI.create(((Literal<QName>) namedProperty.getValue()).getValue().toString()));
-			}
-			else if (namedProperty.getName().equals(Sbol2Terms.ComponentDefinition.hasComponent))
-			{
-				components.add(parseSubComponent(((NestedDocument<QName>) namedProperty.getValue())));
-			}
-			else if (namedProperty.getName().equals(Sbol2Terms.ComponentDefinition.hasSequence))
-			{
-				structure = URI.create(((Literal<QName>) namedProperty.getValue()).getValue().toString());
-			}
-			else if (namedProperty.getName().equals(Sbol2Terms.ComponentDefinition.hasSequenceAnnotations))
-			{
-				sequenceAnnotations.add(parseSequenceAnnotation((NestedDocument<QName>) namedProperty.getValue()));
-			}
-			else if (namedProperty.getName().equals(Sbol2Terms.ComponentDefinition.hasSequenceConstraints))
-			{
-				sequenceConstraints.add(parseSequenceConstraint(((NestedDocument<QName>) namedProperty.getValue())));
-			}
-			else if (namedProperty.getName().equals(Sbol2Terms.Documented.title))
-			{
-				name = ((Literal<QName>) namedProperty.getValue()).getValue().toString();
-			}
-			else if (namedProperty.getName().equals(Sbol2Terms.Documented.description))
-			{
-				description = ((Literal<QName>) namedProperty.getValue()).getValue().toString();
-			}
-			else if (namedProperty.getName().equals(ProvTerms.Prov.wasDerivedFrom))
-			{
-				wasDerivedFrom = URI.create(((Literal<QName>) namedProperty.getValue()).getValue().toString());
-			}
-			else
-			{
-				annotations.add(new Annotation(namedProperty));
-			}
+		for(NestedDocument<QName> doc : props.nestedDocument().getValues(Sbol2Terms.ComponentDefinition.hasSequenceConstraints)) {
+			sequenceConstraints.add(parseSequenceConstraint(doc));
 		}
-
-		//ComponentDefinition c = SBOLDoc.createComponentDefinition(topLevel.getIdentity(), type, roles);
-		//c.setPersistentIdentity(topLevel.getOptionalUriPropertyValue(Sbol2Terms.Identified.persistentIdentity));
-		ComponentDefinition c = SBOLDoc.createComponentDefinition(topLevel.getIdentity(), type);
-
-		if(roles != null)
-			c.setRoles(roles);
-		if (displayId != null)
-			c.setDisplayId(displayId);
-		if (persistentIdentity != null)
-			c.setPersistentIdentity(persistentIdentity);
-		if (structure != null)
-			c.setSequence(structure);
-		if (!components.isEmpty())
-			c.setComponents(components);
-		if (!sequenceAnnotations.isEmpty())
-			c.setSequenceAnnotations(sequenceAnnotations);
-		if (!sequenceConstraints.isEmpty())
-			c.setSequenceConstraints(sequenceConstraints);
-		if (name != null)
-			c.setName(name);
-		if (description != null)
-			c.setDescription(description);
-		if (!annotations.isEmpty())
-			c.setAnnotations(annotations);
-		if (version != null)
-			c.setVersion(version);
-		if (wasDerivedFrom != null)
-			c.setWasDerivedFrom(wasDerivedFrom);
-		return c;
+		toMake.setSequenceConstraints(sequenceConstraints);
 	}
 
-	private static SequenceConstraint parseSequenceConstraint(NestedDocument<QName> sequenceConstraints)
+
+	private static ComponentDefinition parseComponentDefinition(
+			SBOLDocument sbolDoc, TopLevelDocument<QName> doc)
 	{
-		URI persistentIdentity 		 = null;
-		String displayId             = null;
-		RestrictionType restriction  = null;
-		URI subject 				 = null;
-		URI object 					 = null;
-		String version 				 = null;
-		URI wasDerivedFrom 			 = null;
-		List<Annotation> annotations = new ArrayList<>();
+		final IdentifiableDocument.Properties<QName> properties = doc.properties();
+		final ComponentDefinition toMake = sbolDoc.createComponentDefinition(doc.getIdentity());
 
-		for (NamedProperty<QName> namedProperty : sequenceConstraints.getProperties())
-		{
-			if (namedProperty.getName().equals(Sbol2Terms.Identified.persistentIdentity))
-			{
-				persistentIdentity = URI.create(((Literal<QName>) namedProperty
-						.getValue()).getValue().toString());
-			}
-			else if (namedProperty.getName().equals(
-					Sbol2Terms.SequenceConstraint.restriction))
-			{
-				restriction = SequenceConstraint.RestrictionType
-						.convertToRestrictionType(URI
-								.create(((Literal<QName>) namedProperty
-										.getValue()).getValue().toString()));
+		populateIdentified(properties, toMake);
+		populateDocumented(properties, toMake);
+		populateTopLevel(properties, toMake);
+		populateComponentDefinition(properties, toMake);
+		populateAnnotations(properties, toMake, Sbol2Terms.ComponentDefinition.all);
 
-			}
-			else if (namedProperty.getName().equals(Sbol2Terms.SequenceConstraint.hasSubject))
-			{
-				subject = URI
-						.create(((Literal<QName>) namedProperty.getValue())
-								.getValue().toString());
-			}
-			else if (namedProperty.getName().equals(Sbol2Terms.SequenceConstraint.hasObject))
-			{
-				object = URI.create(((Literal<QName>) namedProperty.getValue()).getValue().toString());
-			}
-			else if (namedProperty.getName().equals(Sbol2Terms.Documented.displayId))
-			{
-				displayId = ((Literal<QName>) namedProperty.getValue()).getValue().toString();
-			}
-			else if (namedProperty.getName().equals(Sbol2Terms.Identified.version))
-			{
-				version  = ((Literal<QName>) namedProperty.getValue()).getValue().toString();
-			}
-			else if (namedProperty.getName().equals(ProvTerms.Prov.wasDerivedFrom))
-			{
-				wasDerivedFrom = URI.create(((Literal<QName>) namedProperty.getValue()).getValue().toString());
-			}
-			else
-			{
-				annotations.add(new Annotation(namedProperty));
-			}
-		}
-
-		SequenceConstraint s = new SequenceConstraint(sequenceConstraints.getIdentity(), restriction, subject, object);
-		if (displayId != null)
-			s.setDisplayId(displayId);
-		if (persistentIdentity != null)
-			s.setPersistentIdentity(persistentIdentity);
-		if (version != null)
-			s.setVersion(version);
-		if (wasDerivedFrom != null)
-			s.setWasDerivedFrom(wasDerivedFrom);
-		if (!annotations.isEmpty())
-			s.setAnnotations(annotations);
-		return s;
+		return toMake;
 	}
 
-	private static SequenceAnnotation parseSequenceAnnotation(NestedDocument<QName> sequenceAnnotation)
+
+	private static void populateSequenceConstraint(
+			IdentifiableDocument.Properties<QName> props, SequenceConstraint toMake)
 	{
-		URI persistentIdentity = null;
-		String displayId 	   = null;
-		Location location 	   = null;
-		URI componentURI 	   = null;
-		String name 		   = null;
-		String description 	   = null;
-		String version   	   = null;
-		URI wasDerivedFrom 	   = null;
-		List<Annotation> annotations = new ArrayList<>();
+		toMake.setRestriction(props.uri().getValue(
+				Sbol2Terms.SequenceConstraint.restriction));
+		toMake.setSubject(props.uri().getValue(
+				Sbol2Terms.SequenceConstraint.hasSubject));
+		toMake.setObject(props.uri().getValue(
+				Sbol2Terms.SequenceConstraint.hasObject));
+	}
 
-		for (NamedProperty<QName> namedProperty : sequenceAnnotation.getProperties())
-		{
-			if (namedProperty.getName().equals(Sbol2Terms.Identified.persistentIdentity))
-			{
-				persistentIdentity = URI.create(((Literal<QName>) namedProperty.getValue()).getValue().toString());
-			}
-			else if (namedProperty.getName().equals(Sbol2Terms.Documented.displayId))
-			{
-				displayId = ((Literal<QName>) namedProperty.getValue()).getValue().toString();
-			}
-			else if (namedProperty.getName().equals(Sbol2Terms.Identified.version))
-			{
-				version  = ((Literal<QName>) namedProperty.getValue()).getValue().toString();
-			}
-			else if (namedProperty.getName().equals(Sbol2Terms.Location.Location))
-			{
-				location = parseLocation((NestedDocument<QName>) namedProperty.getValue());
-			}
-			else if (namedProperty.getName().equals(Sbol2Terms.SequenceAnnotation.hasComponent))
-			{
-				componentURI = URI.create(((Literal<QName>) namedProperty.getValue()).getValue().toString());
-			}
-			else if (namedProperty.getName().equals(Sbol2Terms.Documented.title))
-			{
-				name = ((Literal<QName>) namedProperty.getValue()).getValue().toString();
-			}
-			else if (namedProperty.getName().equals(Sbol2Terms.Documented.description))
-			{
-				description = ((Literal<QName>) namedProperty.getValue()).getValue().toString();
-			}
-			else if (namedProperty.getName().equals(ProvTerms.Prov.wasDerivedFrom))
-			{
-				wasDerivedFrom = URI.create(((Literal<QName>) namedProperty.getValue()).getValue().toString());
-			}
-			else
-			{
-				annotations.add(new Annotation(namedProperty));
-			}
-		}
 
-		SequenceAnnotation s = new SequenceAnnotation(sequenceAnnotation.getIdentity(), location);
+	private static SequenceConstraint parseSequenceConstraint(NestedDocument<QName> doc)
+	{
+		final IdentifiableDocument.Properties<QName> properties = doc.properties();
+		final SequenceConstraint toMake = new SequenceConstraint(doc.getIdentity());
+		
+		populateIdentified(properties, toMake);
+		populateSequenceConstraint(properties, toMake);
+		populateAnnotations(properties, toMake, Sbol2Terms.SequenceConstraint.all);
 
-		if (persistentIdentity != null)
-			s.setPersistentIdentity(persistentIdentity);
-		if(version != null)
-			s.setVersion(version);
-		if (displayId != null)
-			s.setDisplayId(displayId);
-		if (componentURI != null)
-			s.setComponent(componentURI);
-		if (name != null)
-			s.setName(name);
-		if (description != null)
-			s.setDescription(description);
-		if (wasDerivedFrom != null)
-			s.setWasDerivedFrom(wasDerivedFrom);
-		if (!annotations.isEmpty())
-			s.setAnnotations(annotations);
-		return s;
+		return toMake;
+	}
+
+
+	private static void populateSequenceAnnotation(
+			IdentifiableDocument.Properties<QName> props, SequenceAnnotation toMake)
+	{
+		toMake.setComponent(props.uri().getOptionalValue(
+				Sbol2Terms.SequenceAnnotation.hasComponent));
+		toMake.setLocation(parseLocation(props.nestedDocument().getValue(
+				Sbol2Terms.SequenceAnnotation.hasLocation)));
+	}
+
+
+	private static SequenceAnnotation parseSequenceAnnotation(NestedDocument<QName> doc)
+	{
+		final IdentifiableDocument.Properties<QName> properties = doc.properties();
+		final SequenceAnnotation toMake = new SequenceAnnotation(doc.getIdentity());
+
+		populateIdentified(properties, toMake);
+		populateDocumented(properties, toMake);
+		populateSequenceAnnotation(properties, toMake);
+		populateAnnotations(properties, toMake, Sbol2Terms.SequenceAnnotation.all);
+
+		return toMake;
 	}
 
 	private static Location parseLocation(NestedDocument<QName> location)
@@ -1106,7 +991,7 @@ public class SBOLReader
 		}
 
 		GenericLocation gl = new GenericLocation(typeGenLoc.getIdentity());
-		if(displayId != null) 
+		if(displayId != null)
 			gl.setDisplayId(displayId);
 		if(orientation != null)
 			gl.setOrientation(orientation);
@@ -1137,7 +1022,7 @@ public class SBOLReader
 			if (namedProperty.getName().equals(Sbol2Terms.Identified.persistentIdentity))
 			{
 				persistentIdentity = URI.create(((Literal<QName>) namedProperty.getValue()).getValue().toString());
-			} 
+			}
 			else if (namedProperty.getName().equals(Sbol2Terms.Documented.displayId))
 			{
 				displayId = ((Literal<QName>) namedProperty.getValue()).getValue().toString();
@@ -1174,7 +1059,7 @@ public class SBOLReader
 		Cut c = new Cut(typeCut.getIdentity(), at);
 		if (persistentIdentity != null)
 			c.setPersistentIdentity(persistentIdentity);
-		if (displayId != null) 
+		if (displayId != null)
 			c.setDisplayId(displayId);
 		if (orientation != null)
 			c.setOrientation(orientation);
@@ -1649,7 +1534,7 @@ public class SBOLReader
 			}
 			else if (namedProperty.getName().equals(Sbol2Terms.ModuleDefinition.hasfunctionalComponent))
 			{
-				functionalComponents.add(parseFunctionalComponents((NestedDocument<QName>) namedProperty.getValue()));
+				functionalComponents.add(parseFunctionalComponent((NestedDocument<QName>) namedProperty.getValue()));
 			}
 			else if (namedProperty.getName().equals(Sbol2Terms.ModuleDefinition.hasModels))
 			{
@@ -1835,57 +1720,6 @@ public class SBOLReader
 		return map;
 	}
 
-	private static final <E> Set<E> setFrom(E ... es) {
-		final Set<E> set = new HashSet<>(es.length);
-		for(E e: es) {
-			set.add(e);
-		}
-		return set;
-	}
-
-	@SafeVarargs
-	private static final <E> Set<E> setUnion(Set<E> ... ss) {
-		final Set<E> set = new HashSet<>();
-		for(Set<E> s : ss) {
-			set.addAll(s);
-		}
-		return set;
-	}
-
-	private static final Set<QName> identifiedTerms = setFrom(
-			Sbol2Terms.Identified.persistentIdentity,
-			Sbol2Terms.Identified.version,
-			Sbol2Terms.Identified.wasDerivedFrom);
-
-	private static void populateIdentified(IdentifiableDocument.Properties<QName> props, Identified toMake) {
-		toMake.setIdentity(props.uri().getOptionalValue(
-				Sbol2Terms.Identified.persistentIdentity));
-		toMake.setVersion(props.string().getOptionalValue(
-				Sbol2Terms.Identified.version));
-		toMake.setWasDerivedFrom(props.uri().getOptionalValue(
-				Sbol2Terms.Identified.wasDerivedFrom));
-	}
-
-	private static final Set<QName> documentedTerms = setFrom(
-			Sbol2Terms.Documented.displayId,
-			Sbol2Terms.Documented.title,
-			Sbol2Terms.Documented.description);
-
-	private static void populateDocumented(IdentifiableDocument.Properties<QName> props, Documented toMake) {
-		toMake.setDisplayId(props.string().getOptionalValue(Sbol2Terms.Documented.displayId));
-		toMake.setName(props.string().getOptionalValue(Sbol2Terms.Documented.title));
-		toMake.setDescription(props.string().getOptionalValue(Sbol2Terms.Documented.description));
-	}
-
-	private static final Set<QName> interactionTerms = setFrom(
-			Sbol2Terms.Interaction.hasParticipations,
-			Sbol2Terms.Interaction.type);
-
-	private static final Set<QName> allInteractionTerms = setUnion(
-			identifiedTerms,
-			documentedTerms,
-			interactionTerms);
-
 	private static void populateInteraction(IdentifiableDocument.Properties<QName> props, Interaction toMake) {
 		final Set<URI> type 		 = new HashSet<>();
 		for(URI t : props.uri().getValues(Sbol2Terms.Interaction.type)) {
@@ -1910,26 +1744,18 @@ public class SBOLReader
 		toMake.setAnnotations(annotations);
 	}
 
-	private static Interaction parseInteraction(NestedDocument<QName> interaction)
+	private static Interaction parseInteraction(NestedDocument<QName> doc)
 	{
-		final IdentifiableDocument.Properties<QName> properties = interaction.properties();
-		Interaction i = new Interaction(interaction.getIdentity());
+		final IdentifiableDocument.Properties<QName> properties = doc.properties();
+		Interaction toMake = new Interaction(doc.getIdentity());
 
-		populateIdentified(properties, i);
-		populateDocumented(properties, i);
-		populateInteraction(properties, i);
-		populateAnnotations(properties, i, allInteractionTerms);
+		populateIdentified(properties, toMake);
+		populateDocumented(properties, toMake);
+		populateInteraction(properties, toMake);
+		populateAnnotations(properties, toMake, Sbol2Terms.Interaction.terms);
 
-		return i;
+		return toMake;
 	}
-
-	private static final Set<QName> participationTerms = setFrom(
-			Sbol2Terms.Participation.role,
-			Sbol2Terms.Participation.hasParticipant);
-
-	private static final Set<QName> allParticipationTerms = setUnion(
-			identifiedTerms,
-			participationTerms);
 
 	private static final void populateParticipation(IdentifiableDocument.Properties<QName> props, Participation toMake) {
 		toMake.setParticipant(props.uri().getValue(Sbol2Terms.Participation.hasParticipant));
@@ -1941,108 +1767,50 @@ public class SBOLReader
 		toMake.setRoles(roles);
 	}
 
-	private static Participation parseParticipation(NestedDocument<QName> participation)
+	private static Participation parseParticipation(NestedDocument<QName> doc)
 	{
-		final IdentifiableDocument.Properties<QName> properties = participation.properties();
-		Participation p = new Participation(participation.getIdentity());
-		
-		populateIdentified(properties, p);
-		populateParticipation(properties, p);
-		populateAnnotations(properties, p, allParticipationTerms);
+		final IdentifiableDocument.Properties<QName> properties = doc.properties();
+		final Participation toMake = new Participation(doc.getIdentity());
 
-		return p;
+		populateIdentified(properties, toMake);
+		populateParticipation(properties, toMake);
+		populateAnnotations(properties, toMake, Sbol2Terms.Participation.all);
+
+		return toMake;
 	}
 
-	private static FunctionalComponent parseFunctionalComponents(
-			NestedDocument<QName> functionalComponent)
+	private static final void populateComponentInstance(
+			IdentifiableDocument.Properties<QName> props, ComponentInstance toMake)
 	{
-		URI persistentIdentity 	   = null;
-		String version 			   = null;
-		String displayId 		   = null;
-		String name 			   = null;
-		String description 		   = null;
-		AccessType access 		   = null;
-		DirectionType direction    = null;
-		URI functionalComponentURI = null;
-		URI wasDerivedFrom 		   = null;
+		toMake.setAccess(props.uri().getValue(Sbol2Terms.ComponentInstance.access));
+		toMake.setDefinition(props.uri().getValue(Sbol2Terms.ComponentInstance.hasComponentDefinition));
 
-		List<Annotation> annotations = new ArrayList<>();
-		List<MapsTo> mappings 		 = new ArrayList<>();
-
-		for (NamedProperty<QName> f : functionalComponent.getProperties())
-		{
-			if (f.getName().equals(Sbol2Terms.Identified.persistentIdentity))
-			{
-				persistentIdentity = URI.create(((Literal<QName>) f.getValue()).getValue().toString());
-			}
-			else if (f.getName().equals(Sbol2Terms.Identified.version))
-			{
-				version  = ((Literal<QName>) f.getValue()).getValue().toString();
-			}
-			else if (f.getName().equals(Sbol2Terms.Documented.displayId))
-			{
-				displayId = ((Literal<QName>) f.getValue()).getValue().toString();
-			}
-			else if (functionalComponent.getType().equals(Sbol2Terms.ComponentInstance.access))
-			{
-				access = ComponentInstance.AccessType.convertToAccessType(URI
-						.create(((Literal<QName>) f.getValue()).getValue()
-								.toString()));
-			}
-			else if (f.getName().equals(Sbol2Terms.FunctionalComponent.direction))
-			{
-				direction = FunctionalComponent.DirectionType
-						.convertToDirectionType(URI.create(((Literal<QName>) f
-								.getValue()).getValue().toString()));
-			}
-			if (f.getName().equals(Sbol2Terms.ComponentInstance.hasMapsTo))
-			{
-				mappings.add(parseMapsTo((NestedDocument<QName>) f.getValue()));
-			}
-			else if (f.getName().equals(Sbol2Terms.ComponentInstance.hasComponentDefinition))
-			{
-				functionalComponentURI = URI.create(((Literal<QName>) f.getValue()).getValue().toString());
-			}
-			else if (f.getName().equals(Sbol2Terms.Documented.title))
-			{
-				name = ((Literal<QName>) f.getValue()).getValue().toString();
-			}
-			else if (f.getName().equals(Sbol2Terms.Documented.description))
-			{
-				description = ((Literal<QName>) f.getValue()).getValue().toString();
-			}
-			else if (f.getName().equals(ProvTerms.Prov.wasDerivedFrom))
-			{
-				wasDerivedFrom = URI.create(((Literal<QName>) f.getValue()).getValue().toString());
-			}
-			else
-			{
-				annotations.add(new Annotation(f));
-			}
-
+		List<MapsTo> mapsTos = new ArrayList<>();
+		for(NestedDocument<QName> doc : props.nestedDocument().getValues(Sbol2Terms.ComponentInstance.hasMapsTo)) {
+			mapsTos.add(parseMapsTo(doc));
 		}
-
-		FunctionalComponent fc = new FunctionalComponent(
-				functionalComponent.getIdentity(), access,
-				functionalComponentURI, direction);
-		if (persistentIdentity != null)
-			fc.setPersistentIdentity(persistentIdentity);
-		if (version != null)
-			fc.setVersion(version);
-		if (displayId != null)
-			fc.setDisplayId(displayId);
-		if (!mappings.isEmpty())
-			fc.setMapsTo(mappings);
-		if (name != null)
-			fc.setName(name);
-		if (description != null)
-			fc.setDescription(description);
-		if (wasDerivedFrom != null)
-			fc.setWasDerivedFrom(wasDerivedFrom);
-		if (!annotations.isEmpty())
-			fc.setAnnotations(annotations);
-		return fc;
+		toMake.setMapsTo(mapsTos);
 	}
+
+	private static final void populateFunctionalComponent(
+			IdentifiableDocument.Properties<QName> props, FunctionalComponent toMake)
+	{
+		toMake.setDirection(props.uri().getValue(Sbol2Terms.FunctionalComponent.direction));
+	}
+
+	private static final FunctionalComponent parseFunctionalComponent(NestedDocument<QName> doc) {
+		final IdentifiableDocument.Properties<QName> properties = doc.properties();
+		final FunctionalComponent toMake = new FunctionalComponent(doc.getIdentity());
+
+		populateIdentified(properties, toMake);
+		populateDocumented(properties, toMake);
+		populateComponentInstance(properties, toMake);
+		populateFunctionalComponent(properties, toMake);
+		populateAnnotations(properties, toMake, Sbol2Terms.FunctionalComponent.all);
+
+		return toMake;
+	}
+
 
 	private static Sequence parseSequences(SBOLDocument SBOLDoc, TopLevelDocument<QName> topLevel)
 	{

@@ -21,6 +21,10 @@ public class SequenceAnnotation extends Documented {
 		super(identity);
 		setLocation(location);		
 	}
+
+	SequenceAnnotation(URI identity) {
+		super(identity);
+	}
 	
 	private SequenceAnnotation(SequenceAnnotation sequenceAnnotation) {
 		super(sequenceAnnotation.getIdentity());

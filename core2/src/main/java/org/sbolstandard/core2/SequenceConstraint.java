@@ -74,6 +74,10 @@ public class SequenceConstraint extends Identified {
 		setSubject(subject);
 		setObject(object);
 	}
+
+	SequenceConstraint(URI identity) {
+		super(identity);
+	}
 	
 	private SequenceConstraint(SequenceConstraint sequenceConstraint) {
 		super(sequenceConstraint);

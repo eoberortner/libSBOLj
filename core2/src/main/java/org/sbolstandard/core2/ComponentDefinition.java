@@ -37,6 +37,10 @@ public class ComponentDefinition extends TopLevel {
 		this.sequenceConstraints = new HashMap<>();
 	}
 
+	ComponentDefinition(URI identity) {
+		super(identity);
+	}
+
 	private ComponentDefinition(ComponentDefinition componentDefinition) {
 		super(componentDefinition);
 		Set<URI> types = new HashSet<>();

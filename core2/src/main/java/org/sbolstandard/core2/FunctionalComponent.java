@@ -81,12 +81,16 @@ public class FunctionalComponent extends ComponentInstance {
 			}
 		}
 	}
-	
+
 
 	public FunctionalComponent(URI identity, AccessType access, URI instantiatedComponent,
 			DirectionType direction) {
 		super(identity, access, instantiatedComponent);
 		setDirection(direction);
+	}
+
+	FunctionalComponent(URI identity) {
+		super(identity);
 	}
 	
 	private FunctionalComponent(FunctionalComponent functionalComponent) {

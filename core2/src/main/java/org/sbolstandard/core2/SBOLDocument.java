@@ -293,6 +293,12 @@ public class SBOLDocument {
 		}
 	}
 
+	ComponentDefinition createComponentDefinition(URI identity) {
+		ComponentDefinition newComponentDefinition = new ComponentDefinition(identity);
+		addComponentDefinition(newComponentDefinition);
+		return newComponentDefinition;
+	}
+
 	/**
 	 * Create a new {@link ComponentDefinition} object.
 	 * @return {@link ComponentDefinition} object.

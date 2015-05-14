@@ -3,16 +3,37 @@ package org.sbolstandard.core2;
 import static uk.ac.ncl.intbio.core.datatree.Datatree.NamespaceBinding;
 
 import java.net.URI;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.xml.namespace.QName;
 
 import uk.ac.ncl.intbio.core.datatree.NamespaceBinding;
+import uk.ac.ncl.intbio.examples.SbolTerms;
+
 /**
  * Provides qualified names for SBOL2.0 objects.
  *
  */
 class Sbol2Terms
 {
+
+	private static final <E> Set<E> setFrom(E ... es) {
+		final Set<E> set = new HashSet<>(es.length);
+		Collections.addAll(set, es);
+		return set;
+	}
+
+	@SafeVarargs
+	private static final <E> Set<E> setUnion(Set<E> ... ss) {
+		final Set<E> set = new HashSet<>();
+		for(Set<E> s : ss) {
+			set.addAll(s);
+		}
+		return set;
+	}
+
 
 	/**
 	 * The namespace binding for SBOL2.0
@@ -50,6 +71,14 @@ class Sbol2Terms
 		//		  static final QName access 	   = sbol2.withLocalPart("access");
 	}
 
+	// this is here for the systematic structure
+	static final class TopLevel {
+		static final Set<QName> terms = setFrom();
+		static final Set<QName> all = setUnion(
+				Sbol2Terms.Documented.all,
+				terms);
+	}
+
 	/**
 	 * A group of qualified terms for ComponentDefinition related SBOL objects
 	 *
@@ -62,6 +91,18 @@ class Sbol2Terms
 		static final QName hasSequenceAnnotations = sbol2.withLocalPart("sequenceAnnotation");
 		static final QName hasSequenceConstraints = sbol2.withLocalPart("sequenceConstraint");
 		static final QName hasComponent = sbol2.withLocalPart("component"); //TODO should this be functionalComponent? check uml diagram
+
+		static final Set<QName> terms = setFrom(
+				type,
+				roles,
+				hasSequence,
+				hasSequenceAnnotations,
+				hasSequenceConstraints,
+				hasComponent);
+
+		static final Set<QName> all = setUnion(
+				Sbol2Terms.TopLevel.all,
+				terms);
 	}
 
 	/**
@@ -73,6 +114,11 @@ class Sbol2Terms
 		static final QName access 				   = sbol2.withLocalPart("access");
 		static final QName hasMapsTo 		   	   = sbol2.withLocalPart("mapsTo");
 		static final QName hasComponentDefinition   = sbol2.withLocalPart("definition");
+
+		static final Set<QName> terms = setFrom(
+				access,
+				hasMapsTo,
+				hasComponentDefinition);
 	}
 
 	/**
@@ -94,6 +140,16 @@ class Sbol2Terms
 		static final QName displayId   = sbol2.withLocalPart("displayId");
 		static final QName title 	  = dc.withLocalPart("title");
 		static final QName description = dc.withLocalPart("description");
+
+
+		private static final Set<QName> terms = setFrom(
+				Sbol2Terms.Documented.displayId,
+				Sbol2Terms.Documented.title,
+				Sbol2Terms.Documented.description);
+
+		private static final Set<QName> all = setUnion(
+				Sbol2Terms.Identified.all,
+				Sbol2Terms.Documented.terms);
 	}
 
 	/**
@@ -103,6 +159,12 @@ class Sbol2Terms
 	static final class FunctionalComponent {
 		static final QName FunctionalComponent = sbol2.withLocalPart("FunctionalComponent");
 		static final QName direction   	   	  = sbol2.withLocalPart("direction");
+
+		static final Set<QName> terms = setFrom(direction);
+
+		static final Set<QName> all = setUnion(
+				Documented.all,
+				terms);
 	}
 
 	static final class GenericLocation {
@@ -122,6 +184,13 @@ class Sbol2Terms
 		static final QName timeStamp   	     = sbol2.withLocalPart("timeStamp");
 		static final QName hasAnnotations 	 = sbol2.withLocalPart("annotation");
 		static final QName wasDerivedFrom	 = prov.withLocalPart("wasDerivedFrom");
+
+		static final Set<QName> terms = setFrom(
+				Sbol2Terms.Identified.persistentIdentity,
+				Sbol2Terms.Identified.version,
+				Sbol2Terms.Identified.wasDerivedFrom);
+
+		static final Set<QName> all = terms;
 	}
 
 	/**
@@ -132,6 +201,15 @@ class Sbol2Terms
 		static final QName Interaction 	    = sbol2.withLocalPart("Interaction");
 		static final QName type 			    = sbol2.withLocalPart("type");
 		static final QName hasParticipations = sbol2.withLocalPart("participation");
+
+        static final Set<QName> terms = setFrom(
+				Sbol2Terms.Interaction.hasParticipations,
+				Sbol2Terms.Interaction.type);
+
+		static final Set<QName> all = setUnion(
+				Sbol2Terms.Identified .terms,
+				Sbol2Terms.Documented.terms,
+				Sbol2Terms.Interaction.terms);
 	}
 
 	/**
@@ -211,6 +289,15 @@ class Sbol2Terms
 		static final QName role 		   	 = sbol2.withLocalPart("role");
 		static final QName hasParticipant = sbol2.withLocalPart("participant");
 
+
+		static final Set<QName> terms = setFrom(
+				Sbol2Terms.Participation.role,
+				Sbol2Terms.Participation.hasParticipant);
+
+
+		static final Set<QName> all = setUnion(
+				Sbol2Terms.Identified.all,
+				Sbol2Terms.Participation.terms);
 	}
 
 	/**
@@ -244,6 +331,14 @@ class Sbol2Terms
 		static final QName SequenceAnnotation = sbol2.withLocalPart("SequenceAnnotation");
 		static final QName hasComponent 		 = sbol2.withLocalPart("component");
 		static final QName hasLocation 		 = sbol2.withLocalPart("location");
+
+		static final Set<QName> terms = setFrom(
+				hasComponent,
+				hasLocation);
+
+		static final Set<QName> all = setUnion(
+				Documented.all,
+				terms);
 	}
 
 	/**
@@ -255,6 +350,15 @@ class Sbol2Terms
 		static final QName restriction 	     = sbol2.withLocalPart("restriction");
 		static final QName hasSubject 		 = sbol2.withLocalPart("subject");
 		static final QName hasObject 		 = sbol2.withLocalPart("object");
+
+		static final Set<QName> terms = setFrom(
+				restriction,
+				hasSubject,
+				hasObject);
+
+		static final Set<QName> all = setUnion(
+				Identified.all,
+				terms);
 	}
 
 	/**

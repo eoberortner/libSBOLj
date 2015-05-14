@@ -89,6 +89,10 @@ public abstract class ComponentInstance extends Documented {
 		}
 		*/
 	}
+
+	protected ComponentInstance(URI identity) {
+		super(identity);
+	}
 	
 	protected ComponentInstance(ComponentInstance component) {
 		super(component);

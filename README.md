@@ -30,41 +30,48 @@ This will create a libSBOLj JAR file (libSBOLj-core-2.0.0-SNAPSHOT.jar) which is
 
 1. As first step, the libSBOLj JAR file must be added to the local Maven repository. 
 
-    cd /path/to/libSBOLj
-    
-    mvn mvn install:install-file \ 
+```
+cd /path/to/libSBOLj
+
+mvn mvn install:install-file \ 
     -Dfile=./core2/target/libSBOLj-core2-2.0.0-SNAPSHOT.jar \
     -DgroupId=org.sbolstandard \
     -DartifactId=libSBOLj-core2 \
     -Dversion=2.0.0-SNAPSHOT \
     -Dpackaging=jar
+```
 
 2. Add a dependency to a Maven project and the pom.xml file.
 
-	<dependency>
-		<groupId>org.sbolstandard</groupId>
-		<artifactId>libSBOLj-core2</artifactId>
-		<version>2.0.0-SNAPSHOT</version>
-		<scope>compile</scope>
-	</dependency>
+```
+<dependency>
+	<groupId>org.sbolstandard</groupId>
+	<artifactId>libSBOLj-core2</artifactId>
+	<version>2.0.0-SNAPSHOT</version>
+	<scope>compile</scope>
+</dependency>
+```
  
-
 ### In the command line:
 
 libSBOLj comes with a command-line interface (CLI) that can be used to validate SBOL files. After you build the 
 libSBOLj-core-2.0.0-SNAPSHOT.jar as described above, you can use it to validate files as follows after changing to the core/target subdirectory:
 
-    cd core/target/
-    java -jar libSBOLj-core-2.0.0-SNAPSHOT.jar <inputFile>
+```
+cd core/target/
+java -jar libSBOLj-core-2.0.0-SNAPSHOT.jar <inputFile>
+```
     
 If validation is successful, the program will print the contents of the SBOL document. You can also output the result to a file. 
 
-    java -jar libSBOLj-core-1.0.0-SNAPSHOT.jar <inputFile> -o <outputFile>
+```
+java -jar libSBOLj-core-1.0.0-SNAPSHOT.jar <inputFile> -o <outputFile>
+```
 
 If validation fails with an error, there will be a message printed about the validation error.  In addition to checking all required validation rules, it will also check if the URIs are compliant and whether the SBOL document is complete (i.e., all referenced objects are contained within the file).  These validation checks can be turned off with the -n and -i flags, respectively.
 
 If the input file is an SBOL 1.1 file, then it will convert the file into an SBOL 2.0 file.  This conversion should be provided a default URI prefix.  It can also be provided a default version, if desired.  Finally, the -t flag will insert the type of top level objects into the URI during conversion, if desired.
 
-    java -jar libSBOLj-core-1.0.0-SNAPSHOT.jar <inFile> -o <outFile> -p <URIprefix> -v <version>
-    
-    
+```
+java -jar libSBOLj-core-1.0.0-SNAPSHOT.jar <inFile> -o <outFile> -p <URIprefix> -v <version>
+```

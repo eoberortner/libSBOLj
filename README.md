@@ -28,20 +28,20 @@ This will compile the libSBOLj source files, package the compiled source into a 
 
 ### In a Maven project:
 
-1. As first step, the libSBOLj JAR file must be added to the local Maven repository. After libSBOLj is stored in the local Maven repository, it can be integrated into multiple Maven projects. That is, this step must be performed only after compiling and packaging the library. 
+1. As first step, the libSBOLj JAR file must be added to the local Maven repository. 
 
 ```
-cd /path/to/libSBOLj
-
 mvn install:install-file \ 
-    -Dfile=./core2/target/libSBOLj-core2-2.0.0-SNAPSHOT.jar \
+    -Dfile=/path/to/libSBOLj/core2/target/libSBOLj-core2-2.0.0-SNAPSHOT.jar \
     -DgroupId=org.sbolstandard \
     -DartifactId=libSBOLj-core2 \
     -Dversion=2.0.0-SNAPSHOT \
     -Dpackaging=jar
 ```
 
-2. Add a dependency to a Maven project and the pom.xml file.
+After libSBOLj is stored in the local Maven repository, it can be integrated into multiple Maven projects. That is, this step must be performed only after compiling and packaging the library. 
+
+2. In a Maven project that utilizes the libSBOLj library, add a dependency in the Maven project's ```pom.xml``` file.
 
 ```
 <dependency>

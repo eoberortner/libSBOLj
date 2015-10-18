@@ -17,8 +17,10 @@ correctness of SBOL models.
 1. Download and set up Maven. [link](http://maven.apache.org/download.cgi)
 2. Change to the libSBOLj directory in the command line and execute the following command:
 
-    cd /path/to/libSBOLj
-    mvn package
+```
+cd /path/to/libSBOLj
+mvn package
+```
 
 This will create a libSBOLj JAR file (libSBOLj-core-2.0.0-SNAPSHOT.jar) which is placed in the core/target sub-directory. [link](http://maven.apache.org/guides/getting-started/index.html)
 

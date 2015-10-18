@@ -8,21 +8,21 @@ correctness of SBOL models.
 
 ## Getting the libSBOLj source
 
-1. Create a GitHub account. [link](https://github.com/)
-2. Download and set up Git. [link](https://help.github.com/articles/set-up-git)
-3. Clone the libSBOLj GitHub repository to your machine.
+1. [Create](https://github.com/) a GitHub account.
+2. [Setup](https://help.github.com/articles/set-up-git) Git on your machine.
+3. [Clone](https://help.github.com/articles/cloning-a-repository/) the libSBOLj GitHub repository to your machine.
 
 ## Compiling and Packaging libSBOLj 
 
-1. Download and set up Maven. [link](http://maven.apache.org/download.cgi)
-2. Change to the libSBOLj directory in the command line and execute the following command:
+1. [Setup](http://maven.apache.org/download.cgi) Apache Maven. A tutorial on using Apache Maven is provided [here](http://maven.apache.org/guides/getting-started/index.html).
+
+2. In the command line, change to the libSBOLj directory (e.g. ```cd /path/to/libSBOLj```) and execute the following command
 
 ```
-cd /path/to/libSBOLj
 mvn package
 ```
 
-This will create a libSBOLj JAR file (libSBOLj-core-2.0.0-SNAPSHOT.jar) which is placed in the core/target sub-directory. [link](http://maven.apache.org/guides/getting-started/index.html)
+This will compile the libSBOLj source files, package the compiled source into a libSBOLj JAR file (libSBOLj-core-2.0.0-SNAPSHOT.jar), and place the JAR file into the ```core/target``` sub-directory. 
 
 ## Using the libSBOLj library
 
@@ -76,7 +76,7 @@ If the input file is an SBOL 1.1 file, then it will convert the file into an SBO
 java -jar libSBOLj-core-1.0.0-SNAPSHOT.jar <inFile> -o <outFile> -p <URIprefix> -v <version>
 ```
 
-## Support the development of libSBOLj
+## Developing the libSBOLj library
 
  1. Fork the libSBOLj repository. ([link](https://help.github.com/articles/fork-a-repo))
  

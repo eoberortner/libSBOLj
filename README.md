@@ -5,22 +5,49 @@ the [Synthetic Biology Open Language (SBOL)](http://www.sbolstandard.org/sbolsta
 work with SBOL objects, the functionality to read and write SBOL documents as XML/RDF files, and a validator to check the 
 correctness of SBOL models. 
 
+
 ## Getting the libSBOLj source
 
 1. Create a GitHub account. [link](https://github.com/)
 2. Download and set up Git. [link](https://help.github.com/articles/set-up-git)
 3. Fork the libSBOLj repository and clone it to your machine. [link](https://help.github.com/articles/fork-a-repo)
-4. Download and set up Maven. [link](http://maven.apache.org/download.cgi)
-5. Change to your libSBOLj directory via the command line and execute the following command:
 
+## Compiling and Packaging libSBOLj 
+
+1. Download and set up Maven. [link](http://maven.apache.org/download.cgi)
+2. Change to the libSBOLj directory in the command line and execute the following command:
+
+    cd /path/to/libSBOLj
     mvn package
 
-This will create the libSBOLj JAR file (libSBOLj-core-2.0.0-SNAPSHOT.jar) and place it into the core/target subdirectory. [link](http://maven.apache.org/guides/getting-started/index.html)
+This will create a libSBOLj JAR file (libSBOLj-core-2.0.0-SNAPSHOT.jar) which is placed in the core/target sub-directory. [link](http://maven.apache.org/guides/getting-started/index.html)
 
-## Using libSBOLj
+## Using the libSBOLj library
 
+### In a Maven project:
 
-### libSBOLj command line
+1. As first step, the libSBOLj JAR file must be added to the local Maven repository. 
+
+    cd /path/to/libSBOLj
+    
+    mvn mvn install:install-file \ 
+    -Dfile=./core2/target/libSBOLj-core2-2.0.0-SNAPSHOT.jar \
+    -DgroupId=org.sbolstandard \
+    -DartifactId=libSBOLj-core2 \
+    -Dversion=2.0.0-SNAPSHOT \
+    -Dpackaging=jar
+
+2. Add a dependency to a Maven project and the pom.xml file.
+
+	<dependency>
+		<groupId>org.sbolstandard</groupId>
+		<artifactId>libSBOLj-core2</artifactId>
+		<version>2.0.0-SNAPSHOT</version>
+		<scope>compile</scope>
+	</dependency>
+ 
+
+### In the command line:
 
 libSBOLj comes with a command-line interface (CLI) that can be used to validate SBOL files. After you build the 
 libSBOLj-core-2.0.0-SNAPSHOT.jar as described above, you can use it to validate files as follows after changing to the core/target subdirectory:

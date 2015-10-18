@@ -10,7 +10,7 @@ correctness of SBOL models.
 
 1. Create a GitHub account. [link](https://github.com/)
 2. Download and set up Git. [link](https://help.github.com/articles/set-up-git)
-3. Fork the libSBOLj repository and clone it to your machine. [link](https://help.github.com/articles/fork-a-repo)
+3. Clone the libSBOLj GitHub repository to your machine.
 
 ## Compiling and Packaging libSBOLj 
 
@@ -28,12 +28,12 @@ This will create a libSBOLj JAR file (libSBOLj-core-2.0.0-SNAPSHOT.jar) which is
 
 ### In a Maven project:
 
-1. As first step, the libSBOLj JAR file must be added to the local Maven repository. 
+1. As first step, the libSBOLj JAR file must be added to the local Maven repository. After libSBOLj is stored in the local Maven repository, it can be integrated into multiple Maven projects. That is, this step must be performed only after compiling and packaging the library. 
 
 ```
 cd /path/to/libSBOLj
 
-mvn mvn install:install-file \ 
+mvn install:install-file \ 
     -Dfile=./core2/target/libSBOLj-core2-2.0.0-SNAPSHOT.jar \
     -DgroupId=org.sbolstandard \
     -DartifactId=libSBOLj-core2 \
@@ -75,3 +75,8 @@ If the input file is an SBOL 1.1 file, then it will convert the file into an SBO
 ```
 java -jar libSBOLj-core-1.0.0-SNAPSHOT.jar <inFile> -o <outFile> -p <URIprefix> -v <version>
 ```
+
+## Support the development of libSBOLj
+
+ 1. Fork the libSBOLj repository. ([link](https://help.github.com/articles/fork-a-repo))
+ 

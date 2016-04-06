@@ -73,7 +73,6 @@ public class ValidationTest {
 			file_base = new File(ValidationTest.class.getResource("/test/data/Validation/").toURI());
 		}
 		catch (URISyntaxException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		File file;
@@ -88,11 +87,9 @@ public class ValidationTest {
 			try {
 				doc = SBOLReader.read(file);
 			} catch (SBOLValidationException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			SBOLValidate.validateSBOL(doc, true, true, true);
@@ -104,6 +101,8 @@ public class ValidationTest {
 					//System.out.println(error);
 					if(!error.split(":")[0].equals((f.getName()).replace(".rdf", "")))
 					{
+						System.out.println(f.getName().replace(".rdf", ""));
+						System.out.println(error);
 						fail();
 
 					}
@@ -121,6 +120,8 @@ public class ValidationTest {
 					{
 						String ruleId = f.getName().replace(".rdf", "").replace("sbol-", "").trim();
 						failedTests.add(Integer.parseInt(ruleId));
+						System.out.println(f.getName().replace(".rdf", ""));
+						System.out.println(error);
 						fail();
 					}
 					else {
@@ -132,6 +133,7 @@ public class ValidationTest {
 			} else {
 				String ruleId = f.getName().replace(".rdf", "").replace("sbol-", "").trim();
 				failedTests.add(Integer.parseInt(ruleId));
+				System.out.println(f.getName().replace(".rdf", ""));
 				fail();
 			}
 		}

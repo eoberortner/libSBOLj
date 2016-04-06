@@ -6,8 +6,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -141,7 +139,7 @@ public class SBOLValidationException extends Exception {
 						getResourceAsStream("/validation/rules.txt"));
 				try {					
 					parse(new BufferedReader(f));
-					writeRulesToXML("rules.xml");
+					//writeRulesToXML("rules.xml");
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -170,7 +168,7 @@ public class SBOLValidationException extends Exception {
 						getResourceAsStream("/validation/rules.txt"));
 				try {					
 					parse(new BufferedReader(f));
-					writeRulesToXML("rules.xml");
+					//writeRulesToXML("rules.xml");
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -227,8 +225,8 @@ public class SBOLValidationException extends Exception {
 		try
 		{
 			outputFile = new File(filename);
-			System.out.println(outputFile.getAbsolutePath());
-			System.out.println(filename);
+			//System.out.println(outputFile.getAbsolutePath());
+			//System.out.println(filename);
 			outputFW = new FileWriter(outputFile);
 			outputBW = new BufferedWriter(outputFW);//for OS to keep track of what you have written
 		}

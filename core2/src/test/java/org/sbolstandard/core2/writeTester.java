@@ -42,7 +42,7 @@ public class writeTester {
 		annos.add(an2);
 		seq.createAnnotation(new QName("http://myannotation.org", "thisAnnotation", "annot"), 
 				new QName("http://myannotation.org", "thisNested", "annot"), URI.create("http://foo"), annos);
-		SBOLWriter.write(document, (System.out));
+		//SBOLWriter.write(document, (System.out));
 
 
 		get_myParts(sbolDocument);
@@ -56,6 +56,7 @@ public class writeTester {
 				System.out.println(error);
 			}
 		}
+		SBOLWriter.write(sbolDocument, (System.out), SBOLReader.RDFV1);
 		//SBOLDocument doc = new SBOLDocument();
 		//doc.createCollection("http://foo.org", "myPart", "");
 		//doc.createCollection("http://foo.org/myPart", "myPart2", "");
@@ -461,7 +462,7 @@ public class writeTester {
 		Model m = createModelData(SBOL2Doc_test,
 				getData("ToggleModel",version),
 				getPropertyURI("ToggleModel_source"), 
-				Model.SBML, 
+				EDAMOntology.SBML, 
 				SystemsBiologyOntology.CONTINUOUS_FRAMEWORK);
 		return m;
 	}

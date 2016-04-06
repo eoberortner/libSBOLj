@@ -21,7 +21,8 @@ import org.junit.runners.Suite.SuiteClasses;
 			URIcomplianceTest.class,
 			SBOLDocumentTest.class,
 			ValidationTest.class,
-			OntologyTest.class
+			OntologyTest.class,
+			GenbankTest.class
 		}
 		)
 

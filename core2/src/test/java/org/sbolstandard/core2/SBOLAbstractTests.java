@@ -5,6 +5,7 @@ import static uk.ac.ncl.intbio.core.datatree.Datatree.NamespaceBinding;
 import static uk.ac.ncl.intbio.core.datatree.Datatree.QName;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -820,24 +821,36 @@ public abstract class SBOLAbstractTests {
 		catch (URISyntaxException e1) {
 			e1.printStackTrace();
 		}
-		File file;
+
 		for (File f : file_base.listFiles()){
-			file = new File(f.getAbsolutePath());
-			try
-			{
-				GenBank.setURIPrefix("http://www.async.ece.utah.edu");
-				SBOLDocument actual = GenBank.read(file);
-				GenBank.write(actual.getRootComponentDefinitions().iterator().next(),
-						"src/test/resources/test/data/GenBankOut/"+f.getName());
-				runTest("test/data/"+f.getName().replace(".gb", ".rdf"), actual, "rdf", true);
-			}
-			catch (SBOLValidationException e)
-			{
+			try {
+				test_GenBank_File(f);
+			} catch(Exception e) {
 				throw new AssertionError("Failed for " + f.getName(), e);
 			}
 		}
 	}
 
+	private void test_GenBank_File(File f) 
+			throws IOException, SBOLValidationException {
+		
+		if(f.isDirectory()) {
+			for(File file : f.listFiles()) {
+				this.test_GenBank_File(file);
+			}
+		} else {
+			File file = new File(f.getAbsolutePath());
+			GenBank.setURIPrefix("http://www.async.ece.utah.edu");
+			SBOLDocument actual = GenBank.read(file);
+			GenBank.write(actual.getRootComponentDefinitions().iterator().next(),
+					"src/test/resources/test/data/GenBankOut/"+f.getName());
+			try {
+				runTest("test/data/"+f.getName().replace(".gb", ".rdf"), actual, "rdf", true);
+			} catch (Exception e) {
+				throw new AssertionError("Failed for " + file.getName(), e);
+			}
+		}
+	}
 
 
 	@Test
